@@ -1,0 +1,5 @@
+node_modules
+.DS_Store
+dist
+# the original download; the unzipped model in public/models/predator is what the site uses
+public/models/*.zip
