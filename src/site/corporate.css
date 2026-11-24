@@ -1,0 +1,101 @@
+/* =====================================================================================================
+   Professional technology-company typography. Loaded last: one clean sans for everything,
+   no serif or italic accents, confident weights, tight but readable headlines.
+   ===================================================================================================== */
+body.site { --serif: 'Manrope', system-ui, sans-serif; }
+
+body.site h1, body.site h2, body.site h3, body.site h4,
+body.site .serif, body.site .it, body.site .split, body.site .split .it,
+body.site .chapter h1, body.site .chapter h2, body.site .cat-hero-copy h1, body.site .feature h2, body.site .feature .split,
+body.site .ins-name, body.site .insp-title b, body.site .switcher .cur b, body.site .anno-box b, body.site .menu-cat > a,
+body.site .menu-preview-cap h3, body.site .credits h1, body.site .credit-list h4, body.site .instrument-body h3, body.site .pro-h {
+  font-family: var(--sans) !important; font-style: normal !important;
+}
+body.site h1, body.site .chapter h1, body.site .cat-hero-copy h1, body.site .credits h1 { font-weight: 600 !important; letter-spacing: -.04em !important; line-height: .95 !important; }
+body.site h2, body.site .split, body.site .chapter h2, body.site .feature h2, body.site .feature .split, body.site .pro-h { font-weight: 600 !important; letter-spacing: -.035em !important; line-height: 1.02 !important; }
+body.site .split .it, body.site .serif, body.site .it { color: var(--mute) !important; font-weight: inherit !important; }
+body.site .chapter h1 { font-size: clamp(56px, 8vw, 140px) !important; }
+body.site .chapter h2 { font-size: clamp(40px, 4.6vw, 80px) !important; }
+body.site .cat-hero-copy h1 { font-size: clamp(60px, 9vw, 160px) !important; }
+body.site .serif-lede, body.site .cat-hero-copy .serif-lede, body.site .feature .serif-lede, body.site .chapter .serif-lede {
+  font-family: var(--sans) !important; font-style: normal !important; font-weight: 400 !important; font-size: clamp(17px, 1.4vw, 22px) !important; color: var(--ink2) !important; letter-spacing: -.01em;
+}
+body.site .ins-name { font-weight: 600 !important; font-size: 32px !important; letter-spacing: -.03em !important; }
+body.site .insp-title b, body.site .switcher .cur b { font-weight: 600 !important; font-size: 17px !important; letter-spacing: -.01em !important; }
+body.site .anno-box b { font-weight: 600 !important; font-size: 14px !important; }
+body.site .life b, body.site .dial .g-n, body.site .summary-grid b, body.site .pro-figs b, body.site .proof b, body.site .readout b, body.site .specs b {
+  font-family: var(--sans) !important; font-weight: 600 !important; letter-spacing: -.04em !important;
+}
+body.site .life b { font-size: 54px !important; }
+body.site .dial .g-n { font-size: 36px !important; }
+body.site .menu-cat > a { font-weight: 600 !important; letter-spacing: -.03em !important; }
+body.site .logo { font-family: var(--sans) !important; font-weight: 700; letter-spacing: .14em; }
+body.site .footer-word { display: none; }
+body.site .pz-tag { font-weight: 400; }
+body.site .crumb, body.site .eyebrow { font-weight: 600; }
+
+/* ======================= HOME: live 3D digital twin ======================= */
+body.site .twin { display: grid; grid-template-columns: 380px 1fr; gap: 0; border: 1px solid var(--line2); background: var(--bg1); min-height: 600px; }
+body.site .twin-side { display: flex; flex-direction: column; border-right: 1px solid var(--line); }
+body.site .twin-tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
+body.site .twin-tabs button { padding: 16px 18px; text-align: left; font: 600 13px var(--sans); color: var(--mute); border-bottom: 2px solid transparent; transition: color .3s, border-color .4s, background .3s; }
+body.site .twin-tabs button:nth-child(odd) { border-right: 1px solid var(--line); }
+body.site .twin-tabs button:nth-child(-n+2) { border-bottom-color: var(--line); }
+body.site .twin-tabs button:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 3%, transparent); }
+body.site .twin-tabs button.on { color: var(--ink); border-bottom-color: var(--ink); }
+body.site .twin-info { padding: 26px 26px 28px; display: flex; flex-direction: column; gap: 14px; flex: 1; animation: fadeup .7s var(--ease) both; }
+body.site .twin-stage { display: inline-flex; align-items: center; gap: 9px; font: 600 10.5px var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--mute); }
+body.site .twin-stage i { width: 7px; height: 7px; border-radius: 50%; background: var(--safe); box-shadow: 0 0 0 0 var(--safe); animation: ping 1.8s infinite; }
+body.site .twin-info h3 { font: 600 30px/1.1 var(--sans) !important; letter-spacing: -.03em !important; }
+body.site .twin-info p { font: 400 14.5px/1.65 var(--sans); color: var(--ink2); }
+body.site .twin-list { border-top: 1px solid var(--line); margin-top: 4px; }
+body.site .twin-list-h { font: 600 10px var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--mute); padding: 14px 0 6px; }
+body.site .twin-row { display: grid; grid-template-columns: 10px 1fr auto auto; gap: 10px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line); font: 500 13.5px var(--sans); }
+body.site .twin-row i { width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
+body.site .twin-row b { font-weight: 600; font-variant-numeric: tabular-nums; }
+body.site .twin-row em { font-style: normal; font-size: 10.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--c); min-width: 56px; text-align: right; }
+body.site .twin-info .btn { margin-top: auto; align-self: flex-start; }
+body.site .twin-stagebox { position: relative; min-height: 600px; background: var(--stage); }
+body.site .twin-stagebox canvas { position: absolute !important; inset: 0; }
+body.site .twin-hint { position: absolute; left: 20px; bottom: 16px; font: 600 10px var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--mute); pointer-events: none; }
+body.site .twin-legend { position: absolute; right: 20px; bottom: 14px; display: flex; gap: 16px; font: 600 10px var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--ink2); pointer-events: none; }
+body.site .twin-legend span { display: inline-flex; align-items: center; gap: 7px; }
+body.site .twin-legend span::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+@media (max-width: 980px) {
+  body.site .twin { grid-template-columns: 1fr; }
+  body.site .twin-side { border-right: 0; border-bottom: 1px solid var(--line); order: 2; }
+  body.site .twin-stagebox { min-height: 440px; order: 1; }
+  body.site .twin-tabs { grid-template-columns: repeat(4, 1fr); }
+  body.site .twin-tabs button { border-right: 1px solid var(--line); border-bottom-color: transparent !important; }
+  body.site .twin-tabs button.on { border-bottom-color: var(--ink) !important; }
+}
+
+/* ======================= HOME: 3D product hero ======================= */
+body.site .hero3d { position: relative; height: 100svh; min-height: 680px; overflow: hidden; background: var(--stage); border-bottom: 1px solid var(--line); }
+body.site .hero3d-canvas { position: absolute; inset: 0; }
+body.site .hero3d-canvas canvas { position: absolute !important; inset: 0; }
+body.site .hero3d-copy { position: absolute; left: var(--pad); top: 50%; transform: translateY(-46%); width: min(620px, 44vw); z-index: 2; }
+body.site .hero3d-copy .eyebrow { animation: fadeup .9s var(--ease) both; }
+body.site .hero3d-copy h1 { font-size: clamp(44px, 5.2vw, 88px) !important; line-height: 1.0 !important; margin-top: 22px; animation: fadeup 1s .08s var(--ease) both; }
+body.site .hero3d-copy p { font: 400 clamp(16px, 1.2vw, 18.5px)/1.65 var(--sans); color: var(--ink2); margin-top: 22px; max-width: 540px; animation: fadeup 1s .16s var(--ease) both; }
+body.site .hero3d-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; animation: fadeup 1s .24s var(--ease) both; }
+body.site .hero3d-classes { display: flex; gap: 26px; margin-top: 56px; border-top: 1px solid var(--line2); animation: fadeup 1s .32s var(--ease) both; }
+body.site .hero3d-classes a { position: relative; padding: 16px 0 0; font: 600 12px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--mute); transition: color .3s; }
+body.site .hero3d-classes a:hover, body.site .hero3d-classes a.on { color: var(--ink); }
+body.site .hero3d-classes i { position: absolute; left: 0; right: 0; top: -1px; height: 2px; }
+body.site .hero3d-classes b { display: block; height: 100%; width: 0; background: var(--ink); }
+body.site .hero3d-classes .on b { animation: fill linear forwards; }
+body.site .hero3d-tag { position: absolute; right: var(--pad); bottom: 28px; z-index: 2; display: flex; align-items: center; gap: 10px; font: 600 10.5px var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--ink2); }
+@media (max-width: 980px) {
+  body.site .hero3d { height: auto; min-height: 0; padding: 110px var(--pad) 0; display: flex; flex-direction: column; }
+  body.site .hero3d-copy { position: relative; left: 0; top: 0; transform: none; width: 100%; }
+  body.site .hero3d-canvas { position: relative; inset: auto; height: 52svh; min-height: 340px; margin: 10px calc(var(--pad) * -1) 0; }
+  body.site .hero3d-tag { bottom: 14px; }
+  body.site .hero3d-classes { flex-wrap: wrap; gap: 6px 20px; margin-top: 36px; }
+}
+@media (min-width: 981px) { body.site .hero3d-copy { top: calc(50% + 34px); } }
+
+/* labels on the internal cutaway */
+body.site .int-tag { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; padding: 5px 9px; border-radius: 4px; background: var(--glass); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); backdrop-filter: blur(8px); font: 600 11px var(--sans); color: var(--ink); transform: translate(8px, -50%); }
+body.site .int-tag i { width: 6px; height: 6px; border-radius: 50%; background: var(--c); box-shadow: 0 0 8px var(--c); }
+body.site .int-tag b { color: var(--c); font-weight: 600; }

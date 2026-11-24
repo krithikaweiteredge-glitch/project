@@ -1,0 +1,366 @@
+{
+ "quadcopter": {
+  "video": {
+   "file": "BLM drone training above Horning Seed Orchard (35179078385).webm",
+   "lic": "Public domain",
+   "artist": "BLM Oregon & Washington",
+   "page": "https://commons.wikimedia.org/wiki/File:BLM_drone_training_above_Horning_Seed_Orchard_(35179078385).webm",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/22/BLM_drone_training_above_Horning_Seed_Orchard_%2835179078385%29.webm/1920px--BLM_drone_training_above_Horning_Seed_Orchard_%2835179078385%29.webm.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo",
+   "w": 1920,
+   "h": 1080,
+   "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/22/BLM_drone_training_above_Horning_Seed_Orchard_%2835179078385%29.webm/BLM_drone_training_above_Horning_Seed_Orchard_%2835179078385%29.webm.720p.vp9.webm",
+   "res": "720p"
+  },
+  "photo": {
+   "file": "DJI Matrice 300 RTK (cropped).jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/DJI_Matrice_300_RTK_%28cropped%29.jpg/1920px-DJI_Matrice_300_RTK_%28cropped%29.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:DJI_Matrice_300_RTK_(cropped).jpg",
+   "w": 3018,
+   "h": 1916,
+   "lic": "CC BY-SA 4.0",
+   "artist": "Gaelle1106"
+  }
+ },
+ "hexacopter": {
+  "video": {
+   "file": "Drone reconnaissance during wildfire season (39411577714).webm",
+   "lic": "Public domain",
+   "artist": "BLM Oregon & Washington",
+   "page": "https://commons.wikimedia.org/wiki/File:Drone_reconnaissance_during_wildfire_season_(39411577714).webm",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Drone_reconnaissance_during_wildfire_season_%2839411577714%29.webm/1920px--Drone_reconnaissance_during_wildfire_season_%2839411577714%29.webm.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo",
+   "w": 1920,
+   "h": 1080,
+   "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/39/Drone_reconnaissance_during_wildfire_season_%2839411577714%29.webm/Drone_reconnaissance_during_wildfire_season_%2839411577714%29.webm.720p.vp9.webm",
+   "res": "720p"
+  },
+  "photo": {
+   "file": "Drone im Himmel IMG 2423BE2.jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b2/Drone_im_Himmel_IMG_2423BE2.jpg/1920px-Drone_im_Himmel_IMG_2423BE2.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Drone_im_Himmel_IMG_2423BE2.jpg",
+   "w": 2803,
+   "h": 1910,
+   "lic": "CC BY-SA 4.0",
+   "artist": "Kora27"
+  }
+ },
+ "launch_vehicle": {
+  "video": {
+   "file": "Launch of Antares Rocket on Return to Flight Cygnus.webm",
+   "lic": "Public domain",
+   "artist": "NASA TV",
+   "page": "https://commons.wikimedia.org/wiki/File:Launch_of_Antares_Rocket_on_Return_to_Flight_Cygnus.webm",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e8/Launch_of_Antares_Rocket_on_Return_to_Flight_Cygnus.webm/1920px--Launch_of_Antares_Rocket_on_Return_to_Flight_Cygnus.webm.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo",
+   "w": 1920,
+   "h": 1080,
+   "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/e/e8/Launch_of_Antares_Rocket_on_Return_to_Flight_Cygnus.webm/Launch_of_Antares_Rocket_on_Return_to_Flight_Cygnus.webm.720p.vp9.webm",
+   "res": "720p"
+  },
+  "photo": {
+   "file": "JCSAT-16 launch (28969742675).jpg",
+   "lic": "CC0",
+   "artist": "SpaceX",
+   "page": "https://commons.wikimedia.org/wiki/File:JCSAT-16_launch_(28969742675).jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/JCSAT-16_launch_%2828969742675%29.jpg/1920px-JCSAT-16_launch_%2828969742675%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "w": 3000,
+   "h": 2000
+  }
+ },
+ "wind_turbine": {
+  "video": {
+   "file": "Wind turbines in the snow as viewed from FPV drone.webm",
+   "lic": "CC BY 3.0",
+   "artist": "SE FPV",
+   "page": "https://commons.wikimedia.org/wiki/File:Wind_turbines_in_the_snow_as_viewed_from_FPV_drone.webm",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bc/Wind_turbines_in_the_snow_as_viewed_from_FPV_drone.webm/1920px--Wind_turbines_in_the_snow_as_viewed_from_FPV_drone.webm.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo",
+   "w": 3840,
+   "h": 2160,
+   "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/bc/Wind_turbines_in_the_snow_as_viewed_from_FPV_drone.webm/Wind_turbines_in_the_snow_as_viewed_from_FPV_drone.webm.720p.vp9.webm",
+   "res": "720p"
+  },
+  "photo": {
+   "article": "Wind turbine",
+   "file": "Windmills_D1-D4_(Thornton_Bank).jpg",
+   "lic": "CC BY-SA 4.0",
+   "artist": "Hans Hillewaert",
+   "page": "https://commons.wikimedia.org/wiki/File:Windmills_D1-D4_(Thornton_Bank).jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/Windmills_D1-D4_%28Thornton_Bank%29.jpg/1920px-Windmills_D1-D4_%28Thornton_Bank%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "w": 2676,
+   "h": 4138
+  }
+ },
+ "helicopter": {
+  "photo": {
+   "file": "DRF Eurocopter EC135 Christoph 44 D-HDRK Göttingen 2017 05.jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9a/DRF_Eurocopter_EC135_Christoph_44_D-HDRK_G%C3%B6ttingen_2017_05.jpg/1920px-DRF_Eurocopter_EC135_Christoph_44_D-HDRK_G%C3%B6ttingen_2017_05.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:DRF_Eurocopter_EC135_Christoph_44_D-HDRK_G%C3%B6ttingen_2017_05.jpg",
+   "w": 4096,
+   "h": 2731,
+   "lic": "CC BY 4.0",
+   "artist": "Julian Herzog (Website)"
+  }
+ },
+ "airliner_narrowbody": {
+  "video": {
+   "file": "Takeoff From Oakland International Airport (OAK).webm",
+   "lic": "CC0",
+   "artist": "Thomas Farley",
+   "page": "https://commons.wikimedia.org/wiki/File:Takeoff_From_Oakland_International_Airport_(OAK).webm",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/94/Takeoff_From_Oakland_International_Airport_%28OAK%29.webm/1920px--Takeoff_From_Oakland_International_Airport_%28OAK%29.webm.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo",
+   "w": 1920,
+   "h": 1080,
+   "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/94/Takeoff_From_Oakland_International_Airport_%28OAK%29.webm/Takeoff_From_Oakland_International_Airport_%28OAK%29.webm.720p.vp9.webm",
+   "res": "720p"
+  },
+  "photo": {
+   "file": "IndiGo VT-IJB A320neo Mumbai Apr22 R16 05934.jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/IndiGo_VT-IJB_A320neo_Mumbai_Apr22_R16_05934.jpg/1920px-IndiGo_VT-IJB_A320neo_Mumbai_Apr22_R16_05934.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:IndiGo_VT-IJB_A320neo_Mumbai_Apr22_R16_05934.jpg",
+   "w": 4400,
+   "h": 2475,
+   "lic": "CC BY-SA 4.0",
+   "artist": "This Photo was taken by Timothy A. Gonsalves. Feel free to use my photos, but please menti"
+  }
+ },
+ "turboprop_transport": {
+  "video": {
+   "file": "Loganair ATR 42-500 (G-LMRD) landing into LCY 01.webm",
+   "lic": "CC0",
+   "artist": "TheFrog001",
+   "page": "https://commons.wikimedia.org/wiki/File:Loganair_ATR_42-500_(G-LMRD)_landing_into_LCY_01.webm",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/00/Loganair_ATR_42-500_%28G-LMRD%29_landing_into_LCY_01.webm/1920px--Loganair_ATR_42-500_%28G-LMRD%29_landing_into_LCY_01.webm.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo",
+   "w": 3840,
+   "h": 2160,
+   "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/00/Loganair_ATR_42-500_%28G-LMRD%29_landing_into_LCY_01.webm/Loganair_ATR_42-500_%28G-LMRD%29_landing_into_LCY_01.webm.480p.vp9.webm",
+   "res": "480p"
+  },
+  "photo": {
+   "file": "F-WWED - ATR 72-600 - IndiGo (test in flight) (48929182202).jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7a/F-WWED_-_ATR_72-600_-_IndiGo_%28test_in_flight%29_%2848929182202%29.jpg/1920px-F-WWED_-_ATR_72-600_-_IndiGo_%28test_in_flight%29_%2848929182202%29.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:F-WWED_-_ATR_72-600_-_IndiGo_(test_in_flight)_(48929182202).jpg",
+   "w": 3681,
+   "h": 2456,
+   "lic": "CC0",
+   "artist": "Dylan Agbagni (CC0) from Bordeaux, France"
+  }
+ },
+ "evtol": {
+  "video": {
+   "file": "Honda-eVTOL-Japan-Mobility-Show-2023.webm",
+   "lic": "CC BY 4.0",
+   "artist": "RuinDig/Yuki Uchida",
+   "page": "https://commons.wikimedia.org/wiki/File:Honda-eVTOL-Japan-Mobility-Show-2023.webm",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6f/Honda-eVTOL-Japan-Mobility-Show-2023.webm/1920px--Honda-eVTOL-Japan-Mobility-Show-2023.webm.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo",
+   "w": 3840,
+   "h": 2160,
+   "src": "https://upload.wikimedia.org/wikipedia/commons/6/6f/Honda-eVTOL-Japan-Mobility-Show-2023.webm",
+   "res": "original"
+  },
+  "photo": {
+   "file": "Emerging Technologies Integrated Test Force Takes Delivery of First eVTOL Aircraft (2003314784).jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/58/Emerging_Technologies_Integrated_Test_Force_Takes_Delivery_of_First_eVTOL_Aircraft_%282003314784%29.jpg/1920px-Emerging_Technologies_Integrated_Test_Force_Takes_Delivery_of_First_eVTOL_Aircraft_%282003314784%29.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Emerging_Technologies_Integrated_Test_Force_Takes_Delivery_of_First_eVTOL_Aircraft_(2003314784).jpg",
+   "w": 4262,
+   "h": 2660,
+   "lic": "Public domain",
+   "artist": "Harlan Huntington"
+  }
+ },
+ "fighter_single_engine": {
+  "video": {
+   "file": "F-35 passing by.webm",
+   "lic": "CC BY 2.0",
+   "artist": "Ingo Hoffmann",
+   "page": "https://commons.wikimedia.org/wiki/File:F-35_passing_by.webm",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/56/F-35_passing_by.webm/1920px--F-35_passing_by.webm.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo",
+   "w": 1920,
+   "h": 1080,
+   "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/56/F-35_passing_by.webm/F-35_passing_by.webm.480p.vp9.webm",
+   "res": "480p"
+  },
+  "photo": {
+   "file": "F-16 Demo Team 2722.jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/F-16_Demo_Team_2722.jpg/1920px-F-16_Demo_Team_2722.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:F-16_Demo_Team_2722.jpg",
+   "w": 4400,
+   "h": 2200,
+   "lic": "Attribution",
+   "artist": "Łukasz Golowanow"
+  }
+ },
+ "fighter_twin_engine": {
+  "video": {
+   "file": "USS Tripoli F-35 Flight Ops (1003186).webm",
+   "lic": "Public domain",
+   "artist": "NAVCENT Public Affairs",
+   "page": "https://commons.wikimedia.org/wiki/File:USS_Tripoli_F-35_Flight_Ops_(1003186).webm",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5a/USS_Tripoli_F-35_Flight_Ops_%281003186%29.webm/1920px--USS_Tripoli_F-35_Flight_Ops_%281003186%29.webm.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo",
+   "w": 1920,
+   "h": 1080,
+   "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/5a/USS_Tripoli_F-35_Flight_Ops_%281003186%29.webm/USS_Tripoli_F-35_Flight_Ops_%281003186%29.webm.480p.vp9.webm",
+   "res": "480p"
+  },
+  "photo": {
+   "article": "Dassault Rafale",
+   "file": "Rafale_-_RIAT_2009_(3751416421).jpg",
+   "lic": "CC BY-SA 2.0",
+   "artist": "Tim Felce (Airwolfhound)",
+   "page": "https://commons.wikimedia.org/wiki/File:Rafale_-_RIAT_2009_(3751416421).jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/64/Rafale_-_RIAT_2009_%283751416421%29.jpg/1920px-Rafale_-_RIAT_2009_%283751416421%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "w": 2048,
+   "h": 1365
+  }
+ },
+ "missile_round": {
+  "video": {
+   "file": "DOD Conducts Ground-launched Cruise Missile Test (190818-O-PZ834-724).webm",
+   "lic": "Public domain",
+   "artist": "U.S. Department of Defense/Scott Howe",
+   "page": "https://commons.wikimedia.org/wiki/File:DOD_Conducts_Ground-launched_Cruise_Missile_Test_(190818-O-PZ834-724).webm",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b2/DOD_Conducts_Ground-launched_Cruise_Missile_Test_%28190818-O-PZ834-724%29.webm/1920px--DOD_Conducts_Ground-launched_Cruise_Missile_Test_%28190818-O-PZ834-724%29.webm.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo",
+   "w": 2560,
+   "h": 1440,
+   "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/b/b2/DOD_Conducts_Ground-launched_Cruise_Missile_Test_%28190818-O-PZ834-724%29.webm/DOD_Conducts_Ground-launched_Cruise_Missile_Test_%28190818-O-PZ834-724%29.webm.480p.vp9.webm",
+   "res": "480p"
+  },
+  "photo": {
+   "file": "BGM-109G Gryphon - ID DF-SC-83-06895.JPEG",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/64/BGM-109G_Gryphon_-_ID_DF-SC-83-06895.JPEG/1920px-BGM-109G_Gryphon_-_ID_DF-SC-83-06895.JPEG",
+   "page": "https://commons.wikimedia.org/wiki/File:BGM-109G_Gryphon_-_ID_DF-SC-83-06895.JPEG",
+   "w": 3148,
+   "h": 2088,
+   "lic": "Public domain",
+   "artist": "An employee of the US. Air Force"
+  }
+ },
+ "custom": {
+  "video": {
+   "file": "T-9 Jet Engine Test Cell.webm",
+   "lic": "Public domain",
+   "artist": "Department of Defense",
+   "page": "https://commons.wikimedia.org/wiki/File:T-9_Jet_Engine_Test_Cell.webm",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3e/T-9_Jet_Engine_Test_Cell.webm/1280px--T-9_Jet_Engine_Test_Cell.webm.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo",
+   "w": 1280,
+   "h": 720,
+   "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/3e/T-9_Jet_Engine_Test_Cell.webm/T-9_Jet_Engine_Test_Cell.webm.480p.vp9.webm",
+   "res": "480p"
+  },
+  "photo": {
+   "file": "Eurojet EJ200 afterburning turbofan (1).jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fd/Eurojet_EJ200_afterburning_turbofan_%281%29.jpg/1920px-Eurojet_EJ200_afterburning_turbofan_%281%29.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Eurojet_EJ200_afterburning_turbofan_(1).jpg",
+   "w": 3648,
+   "h": 2432,
+   "lic": "CC BY-SA 3.0",
+   "artist": "Olivier Cleynen"
+  }
+ },
+ "satellite": {
+  "video": {
+   "file": "Deployment of SWOT's Solar Arrays (PIA25563).webm",
+   "lic": "Public domain (NASA/JPL)",
+   "artist": "NASA/JPL-Caltech/CNES",
+   "page": "https://commons.wikimedia.org/wiki/File:Deployment_of_SWOT%27s_Solar_Arrays_(PIA25563).webm",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/48/Deployment_of_SWOT%27s_Solar_Arrays_%28PIA25563%29.webm/1920px--Deployment_of_SWOT%27s_Solar_Arrays_%28PIA25563%29.webm.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo",
+   "w": 1920,
+   "h": 1080,
+   "src": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/48/Deployment_of_SWOT%27s_Solar_Arrays_%28PIA25563%29.webm/Deployment_of_SWOT%27s_Solar_Arrays_%28PIA25563%29.webm.480p.vp9.webm",
+   "res": "480p"
+  },
+  "photo": {
+   "article": "Hubble Space Telescope",
+   "file": "Hubble_2009_close-up_2.jpg",
+   "lic": "Public domain",
+   "artist": "NASA",
+   "page": "https://commons.wikimedia.org/wiki/File:Hubble_2009_close-up_2.jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/Hubble_2009_close-up_2.jpg/1920px-Hubble_2009_close-up_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "w": 4288,
+   "h": 2847
+  }
+ },
+ "male_uav": {
+  "photo": {
+   "article": "General Atomics MQ-9 Reaper",
+   "file": "MQ-9_Reaper_UAV_(cropped).jpg",
+   "lic": "Public domain",
+   "artist": "Lt. Col. Leslie Pratt",
+   "page": "https://commons.wikimedia.org/wiki/File:MQ-9_Reaper_UAV_(cropped).jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/12/MQ-9_Reaper_UAV_%28cropped%29.jpg/1920px-MQ-9_Reaper_UAV_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "w": 3022,
+   "h": 1986
+  }
+ },
+ "_hero": [
+  {
+   "look": "airliner_narrowbody",
+   "label": "Airliners",
+   "file": "Boeing 747 landing at Barcelona in a golden sunset.jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bc/Boeing_747_landing_at_Barcelona_in_a_golden_sunset.jpg/3840px-Boeing_747_landing_at_Barcelona_in_a_golden_sunset.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Boeing_747_landing_at_Barcelona_in_a_golden_sunset.jpg",
+   "lic": "CC BY-SA 2.0",
+   "artist": "Jordi Cucurull"
+  },
+  {
+   "look": "fighter_twin_engine",
+   "label": "Fighters",
+   "file": "US Navy 050629-N-8060A-002 An MH-60S Seahawk helicopter prepares to pick up a cargo pendant from Sailors aboard the Nimitz-class aircraft carrier USS Carl Vinson (CVN 70) during a sunset vertical replenishment.jpg",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/7/7d/US_Navy_050629-N-8060A-002_An_MH-60S_Seahawk_helicopter_prepares_to_pick_up_a_cargo_pendant_from_Sailors_aboard_the_Nimitz-class_aircraft_carrier_USS_Carl_Vinson_%28CVN_70%29_during_a_sunset_vertical_replenishment.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:US_Navy_050629-N-8060A-002_An_MH-60S_Seahawk_helicopter_prepares_to_pick_up_a_cargo_pendant_from_Sailors_aboard_the_Nimitz-class_aircraft_carrier_USS_Carl_Vinson_(CVN_70)_during_a_sunset_vertical_replenishment.jpg",
+   "lic": "Public domain",
+   "artist": "U.S. Navy photo by Cmdr. Chuck Albrecht"
+  },
+  {
+   "look": "helicopter",
+   "label": "Helicopters",
+   "file": "A Lynx helicopter onboard HMS Albion MOD 45147668.jpg",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/4/43/A_Lynx_helicopter_onboard_HMS_Albion_MOD_45147668.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:A_Lynx_helicopter_onboard_HMS_Albion_MOD_45147668.jpg",
+   "lic": "OGL v1.0",
+   "artist": "LA(Phot) Dan Hooper"
+  },
+  {
+   "look": "fighter_single_engine",
+   "label": "Jet trainers",
+   "file": "Red Arrows Formation Duxford Flying Finale 2024 01.jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/33/Red_Arrows_Formation_Duxford_Flying_Finale_2024_01.jpg/3840px-Red_Arrows_Formation_Duxford_Flying_Finale_2024_01.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Red_Arrows_Formation_Duxford_Flying_Finale_2024_01.jpg",
+   "lic": "CC BY 4.0",
+   "artist": "Julian Herzog (Website)"
+  },
+  {
+   "look": "evtol",
+   "label": "eVTOL",
+   "file": "Emerging Technologies Integrated Test Force Takes Delivery of First eVTOL Aircraft (2003314784).jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/58/Emerging_Technologies_Integrated_Test_Force_Takes_Delivery_of_First_eVTOL_Aircraft_%282003314784%29.jpg/3840px-Emerging_Technologies_Integrated_Test_Force_Takes_Delivery_of_First_eVTOL_Aircraft_%282003314784%29.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Emerging_Technologies_Integrated_Test_Force_Takes_Delivery_of_First_eVTOL_Aircraft_(2003314784).jpg",
+   "lic": "Public domain",
+   "artist": "Harlan Huntington"
+  },
+  {
+   "look": "fighter_twin_engine",
+   "label": "Formation",
+   "file": "Flickr - Official U.S. Navy Imagery - The Blue Angels fly in formation..jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c5/Flickr_-_Official_U.S._Navy_Imagery_-_The_Blue_Angels_fly_in_formation..jpg/3840px-Flickr_-_Official_U.S._Navy_Imagery_-_The_Blue_Angels_fly_in_formation..jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Flickr_-_Official_U.S._Navy_Imagery_-_The_Blue_Angels_fly_in_formation..jpg",
+   "lic": "Public domain",
+   "artist": "Official Navy Page from United States of America MC2 Daniel Barker/U.S. Navy"
+  },
+  {
+   "look": "male_uav",
+   "label": "Unmanned",
+   "file": "MQ-9 Reaper in flight 2.jpg",
+   "thumb": "https://upload.wikimedia.org/wikipedia/commons/c/c1/MQ-9_Reaper_in_flight_2.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:MQ-9_Reaper_in_flight_2.jpg",
+   "lic": "Public domain",
+   "artist": ""
+  },
+  {
+   "look": "airliner_narrowbody",
+   "label": "Every landing",
+   "file": "B-2480 approaching PEK 36R at sunset (20201112164521).jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/B-2480_approaching_PEK_36R_at_sunset_%2820201112164521%29.jpg/3840px-B-2480_approaching_PEK_36R_at_sunset_%2820201112164521%29.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:B-2480_approaching_PEK_36R_at_sunset_(20201112164521).jpg",
+   "lic": "CC BY-SA 4.0",
+   "artist": "N509FZ"
+  }
+ ]
+}

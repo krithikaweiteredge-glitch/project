@@ -1,0 +1,191 @@
+{
+ "turbofan": {
+  "file": "Engine CFM56-5C4 (8458304841).jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9d/Engine_CFM56-5C4_%288458304841%29.jpg/1280px-Engine_CFM56-5C4_%288458304841%29.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Engine_CFM56-5C4_(8458304841).jpg",
+  "lic": "CC BY 2.0",
+  "artist": "Kiko Alario Salom"
+ },
+ "turboprop": {
+  "file": "Deurne engine F-50 OO-VLJ 01.JPG",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Deurne_engine_F-50_OO-VLJ_01.JPG/1280px-Deurne_engine_F-50_OO-VLJ_01.JPG",
+  "page": "https://commons.wikimedia.org/wiki/File:Deurne_engine_F-50_OO-VLJ_01.JPG",
+  "lic": "CC BY-SA 3.0",
+  "artist": "Ad Meskens"
+ },
+ "piston": {
+  "file": "Rotax 914.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/da/Rotax_914.jpg/1280px-Rotax_914.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Rotax_914.jpg",
+  "lic": "CC BY-SA 3.0",
+  "artist": "Herr-K at German Wikipedia"
+ },
+ "turboshaft": {
+  "file": "Turboméca Arriel cutaway.jpg",
+  "thumb": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Turbom%C3%A9ca_Arriel_cutaway.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Turbom%C3%A9ca_Arriel_cutaway.jpg",
+  "lic": "CC BY-SA 3.0",
+  "artist": "User:Stahlkocher"
+ },
+ "apu": {
+  "file": "APU AUXILIARY POWER UNIT - NARA - 17443793.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/35/APU_AUXILIARY_POWER_UNIT_-_NARA_-_17443793.jpg/1280px-APU_AUXILIARY_POWER_UNIT_-_NARA_-_17443793.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:APU_AUXILIARY_POWER_UNIT_-_NARA_-_17443793.jpg",
+  "lic": "Public domain",
+  "artist": "Unknown authorUnknown author or not provided"
+ },
+ "motor": {
+  "file": "Floppy drive spindle motor open.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2e/Floppy_drive_spindle_motor_open.jpg/1280px-Floppy_drive_spindle_motor_open.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Floppy_drive_spindle_motor_open.jpg",
+  "lic": "CC BY 3.0",
+  "artist": "Sebastian Koppehel"
+ },
+ "propeller": {
+  "file": "Propeller of a Quadcopter - Top view.JPG",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cb/Propeller_of_a_Quadcopter_-_Top_view.JPG/1280px-Propeller_of_a_Quadcopter_-_Top_view.JPG",
+  "page": "https://commons.wikimedia.org/wiki/File:Propeller_of_a_Quadcopter_-_Top_view.JPG",
+  "lic": "CC BY-SA 4.0",
+  "artist": "Ali.yusuf7"
+ },
+ "aprop": {
+  "file": "Hercules.propeller.arp.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c3/Hercules.propeller.arp.jpg/1280px-Hercules.propeller.arp.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Hercules.propeller.arp.jpg",
+  "lic": "Public domain",
+  "artist": "Photographed by Adrian Pingstone"
+ },
+ "rotor": {
+  "file": "Helicopter Bristol 171 Sycamore main gear box and rotor head.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b5/Helicopter_Bristol_171_Sycamore_main_gear_box_and_rotor_head.jpg/1280px-Helicopter_Bristol_171_Sycamore_main_gear_box_and_rotor_head.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Helicopter_Bristol_171_Sycamore_main_gear_box_and_rotor_head.jpg",
+  "lic": "CC BY-SA 3.0",
+  "artist": "No machine-readable author provided. Jaypee assumed (based on copyright claims)."
+ },
+ "avionics": {
+  "file": "JGSDF OH-1(32601) aft avionics bay at Camp Akeno November 3, 2019 02.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/JGSDF_OH-1%2832601%29_aft_avionics_bay_at_Camp_Akeno_November_3%2C_2019_02.jpg/1280px-JGSDF_OH-1%2832601%29_aft_avionics_bay_at_Camp_Akeno_November_3%2C_2019_02.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:JGSDF_OH-1(32601)_aft_avionics_bay_at_Camp_Akeno_November_3,_2019_02.jpg",
+  "lic": "CC BY-SA 4.0",
+  "artist": "Hunini"
+ },
+ "gear": {
+  "file": "JMSDF P-1(5504) left main landing gear wheel left rear view at Kanoya Air Base April 30, 2017.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cb/JMSDF_P-1%285504%29_left_main_landing_gear_wheel_left_rear_view_at_Kanoya_Air_Base_April_30%2C_2017.jpg/1280px-JMSDF_P-1%285504%29_left_main_landing_gear_wheel_left_rear_view_at_Kanoya_Air_Base_April_30%2C_2017.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:JMSDF_P-1(5504)_left_main_landing_gear_wheel_left_rear_view_at_Kanoya_Air_Base_April_30,_2017.jpg",
+  "lic": "CC BY-SA 4.0",
+  "artist": "Hunini"
+ },
+ "actuator": {
+  "file": "Elevator actuator hg.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6d/Elevator_actuator_hg.jpg/1280px-Elevator_actuator_hg.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Elevator_actuator_hg.jpg",
+  "lic": "CC BY-SA 3.0",
+  "artist": "Hannes Grobe"
+ },
+ "gearbox": {
+  "file": "Helicopter Bristol 171 Sycamore main gear box and rotor head.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b5/Helicopter_Bristol_171_Sycamore_main_gear_box_and_rotor_head.jpg/1280px-Helicopter_Bristol_171_Sycamore_main_gear_box_and_rotor_head.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Helicopter_Bristol_171_Sycamore_main_gear_box_and_rotor_head.jpg",
+  "lic": "CC BY-SA 3.0",
+  "artist": "No machine-readable author provided. Jaypee assumed (based on copyright claims)."
+ },
+ "bearing": {
+  "file": "Ball-bearing-numbered.png",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/Ball-bearing-numbered.png/1280px-Ball-bearing-numbered.png",
+  "page": "https://commons.wikimedia.org/wiki/File:Ball-bearing-numbered.png",
+  "lic": "CC BY-SA 3.0",
+  "artist": "Niabot"
+ },
+ "shaft": {
+  "file": "US Navy 050112-N-4451V-029 Lance Cpl. Damian Root installs a tail rotor drive shaft into an AH-1W Super Cobra helicopter in the hanger bay aboard the amphibious assault ship USS Bonhomme Richard (LHD 6).jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/US_Navy_050112-N-4451V-029_Lance_Cpl._Damian_Root_installs_a_tail_rotor_drive_shaft_into_an_AH-1W_Super_Cobra_helicopter_in_the_hanger_bay_aboard_the_amphibious_assault_ship_USS_Bonhomme_Richard_%28LHD_6%29.jpg/1280px-thumbnail.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:US_Navy_050112-N-4451V-029_Lance_Cpl._Damian_Root_installs_a_tail_rotor_drive_shaft_into_an_AH-1W_Super_Cobra_helicopter_in_the_hanger_bay_aboard_the_amphibious_assault_ship_USS_Bonhomme_Richard_(LHD_6).jpg",
+  "lic": "Public domain",
+  "artist": "U.S. Navy photo by Journalist 3rd Class Ryan Valverde"
+ },
+ "airframe": {
+  "file": "Women workers install fixtures and assemblies to a tail fuselage section of a B-17F bomber at the Douglas Aircraft Company, Long Beach, Calif. Better known as the \"Flying Fortress,\" the LCCN2017878924.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/Women_workers_install_fixtures_and_assemblies_to_a_tail_fuselage_section_of_a_B-17F_bomber_at_the_Douglas_Aircraft_Company%2C_Long_Beach%2C_Calif._Better_known_as_the_%22Flying_Fortress%2C%22_the_LCCN2017878924.jpg/1280px-thumbnail.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Women_workers_install_fixtures_and_assemblies_to_a_tail_fuselage_section_of_a_B-17F_bomber_at_the_Douglas_Aircraft_Company,_Long_Beach,_Calif._Better_known_as_the_%22Flying_Fortress,%22_the_LCCN2017878924.jpg",
+  "lic": "Public domain",
+  "artist": "Palmer, Alfred T., photographer"
+ },
+ "rocket_engine": {
+  "file": "Gemini and Apollo rocket engines.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/Gemini_and_Apollo_rocket_engines.jpg/1280px-Gemini_and_Apollo_rocket_engines.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Gemini_and_Apollo_rocket_engines.jpg",
+  "lic": "CC BY 2.0",
+  "artist": "Steve Jurvetson"
+ },
+ "srb": {
+  "file": "Static Test Firing DM-2 for Solid Rocket Booster - GPN-2000-000053.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2b/Static_Test_Firing_DM-2_for_Solid_Rocket_Booster_-_GPN-2000-000053.jpg/1280px-Static_Test_Firing_DM-2_for_Solid_Rocket_Booster_-_GPN-2000-000053.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Static_Test_Firing_DM-2_for_Solid_Rocket_Booster_-_GPN-2000-000053.jpg",
+  "lic": "Public domain",
+  "artist": "NASA/photographer unknown"
+ },
+ "solar": {
+  "file": "Satellite solar panels.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/Satellite_solar_panels.jpg/1280px-Satellite_solar_panels.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Satellite_solar_panels.jpg",
+  "lic": "CC BY-SA 4.0",
+  "artist": "Ibex73"
+ },
+ "reaction_wheel": {
+  "file": "Europa Clipper Reaction Wheels PIA25495.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9e/Europa_Clipper_Reaction_Wheels_PIA25495.jpg/1280px-Europa_Clipper_Reaction_Wheels_PIA25495.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Europa_Clipper_Reaction_Wheels_PIA25495.jpg",
+  "lic": "Public domain",
+  "artist": "NASA"
+ },
+ "thruster": {
+  "file": "Rocket Engine TD-339.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/Rocket_Engine_TD-339.jpg/1280px-Rocket_Engine_TD-339.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Rocket_Engine_TD-339.jpg",
+  "lic": "CC BY 2.0",
+  "artist": "Steve Jurvetson"
+ },
+ "mli": {
+  "file": "Shipment of the TIRS instrument (6875676321).jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/da/Shipment_of_the_TIRS_instrument_%286875676321%29.jpg/1280px-Shipment_of_the_TIRS_instrument_%286875676321%29.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Shipment_of_the_TIRS_instrument_(6875676321).jpg",
+  "lic": "Public domain",
+  "artist": "NASA Goddard Space Flight Center from Greenbelt, MD, USA"
+ },
+ "compressor": {
+  "file": "CFM56 High Pressure Compressor Rotor.JPG",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/CFM56_High_Pressure_Compressor_Rotor.JPG/1280px-CFM56_High_Pressure_Compressor_Rotor.JPG",
+  "page": "https://commons.wikimedia.org/wiki/File:CFM56_High_Pressure_Compressor_Rotor.JPG",
+  "lic": "CC BY-SA 3.0",
+  "artist": "Nubifer"
+ },
+ "turbine": {
+  "file": "CFM56 High Pressure Compressor Variable Vanes.JPG",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/62/CFM56_High_Pressure_Compressor_Variable_Vanes.JPG/1280px-CFM56_High_Pressure_Compressor_Variable_Vanes.JPG",
+  "page": "https://commons.wikimedia.org/wiki/File:CFM56_High_Pressure_Compressor_Variable_Vanes.JPG",
+  "lic": "CC BY-SA 3.0",
+  "artist": "Nubifer"
+ },
+ "combustor": {
+  "file": "Junkers Jumo 004 Main Shaft Turbine Combustion Chamber.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Junkers_Jumo_004_Main_Shaft_Turbine_Combustion_Chamber.jpg/1280px-Junkers_Jumo_004_Main_Shaft_Turbine_Combustion_Chamber.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Junkers_Jumo_004_Main_Shaft_Turbine_Combustion_Chamber.jpg",
+  "lic": "CC0",
+  "artist": "John W. Laugle"
+ },
+ "missile": {
+  "file": "Inertial guidance system for Thor missile.jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f9/Inertial_guidance_system_for_Thor_missile.jpg/1280px-Inertial_guidance_system_for_Thor_missile.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Inertial_guidance_system_for_Thor_missile.jpg",
+  "lic": "Public domain",
+  "artist": "United States Air Force photograph"
+ },
+ "aileron": {
+  "file": "Aileron horn of ATR 72 (left wing).jpg",
+  "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/Aileron_horn_of_ATR_72_%28left_wing%29.jpg/1280px-Aileron_horn_of_ATR_72_%28left_wing%29.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Aileron_horn_of_ATR_72_(left_wing).jpg",
+  "lic": "CC0",
+  "artist": "Olivier Cleynen"
+ }
+}
