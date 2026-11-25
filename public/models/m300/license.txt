@@ -1,0 +1,11 @@
+Model Information:
+* title:	DJI Matrice M300 RTK + DJI Zenmuse P1
+* source:	https://sketchfab.com/3d-models/dji-matrice-m300-rtk-dji-zenmuse-p1-660c1acc4c994f858242ef0db54d9e67
+* author:	FCCKudo (https://sketchfab.com/FCCKudo)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "DJI Matrice M300 RTK + DJI Zenmuse P1" (https://sketchfab.com/3d-models/dji-matrice-m300-rtk-dji-zenmuse-p1-660c1acc4c994f858242ef0db54d9e67) by FCCKudo (https://sketchfab.com/FCCKudo) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

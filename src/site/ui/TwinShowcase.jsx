@@ -11,6 +11,7 @@ import { buildModel } from '../three/models';
 import { composePredator, PREDATOR_URL } from '../three/predator';
 import { composeSu30, SU30_URL } from '../three/su30';
 import { composeTejas, TEJAS_URL } from '../three/tejas';
+import { composeM300, M300_URL } from '../three/m300';
 import VehicleScene from '../three/VehicleScene';
 import { useInView } from './motion';
 
@@ -48,6 +49,7 @@ export function Twin({ look, model, phase, insets: given, focus = null }) {
 export function BuiltTwin({ look, phase, insets, focus }) {
   if (look === 'fighter_twin_engine') return <Su30Twin phase={phase} insets={insets} focus={focus} />;   // the real Su-30MKI
   if (look === 'fighter_single_engine') return <TejasTwin phase={phase} insets={insets} focus={focus} />; // the real Tejas
+  if (look === 'quadcopter') return <M300Twin phase={phase} insets={insets} focus={focus} />;              // the real Matrice 300
   return <ShapeTwin look={look} phase={phase} insets={insets} focus={focus} />;
 }
 function Su30Twin({ phase, insets, focus }) {
@@ -59,6 +61,11 @@ function TejasTwin({ phase, insets, focus }) {
   const { scene } = useGLTF(TEJAS_URL);
   const model = useMemo(() => composeTejas(scene), [scene]);
   return <Twin look="fighter_single_engine" model={model} phase={phase} insets={insets} focus={focus} />;
+}
+function M300Twin({ phase, insets, focus }) {
+  const { scene } = useGLTF(M300_URL);
+  const model = useMemo(() => composeM300(scene), [scene]);
+  return <Twin look="quadcopter" model={model} phase={phase} insets={insets} focus={focus} />;
 }
 function ShapeTwin({ look, phase, insets, focus }) {
   const model = useMemo(() => buildModel(look, []), [look]);

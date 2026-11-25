@@ -10,7 +10,8 @@ import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeom
 
 /**
  * @param scene      the loaded glTF scene
- * @param classify   (x, y, z, materialName) -> part id, or null for unmonitored structure, or 'airframe'
+ * @param classify   (x, y, z, materialName) -> part id, null for unmonitored structure, or false to drop the
+ *                   triangle entirely (for example the ground and landing pad in a 3D scan)
  * @param zones      { partId: [[x, y, z] centre, [across, length, up] size] } volumes for systems inside
  * @param rawLength  the model's nose-to-tail length in its own units
  * @param length     the length to give it on the site
@@ -34,6 +35,7 @@ export function splitModel(scene, { classify, zones = {}, rawLength, length }) {
     for (let i = 0; i < pos.count; i += 3) {
       for (let k = 0; k < 3; k++) v[k].fromBufferAttribute(pos, i + k);
       const comp = classify((v[0].x + v[1].x + v[2].x) / 3, (v[0].y + v[1].y + v[2].y) / 3, (v[0].z + v[1].z + v[2].z) / 3, mat.name || '');
+      if (comp === false) continue;
       const key = `${comp || '-'}|${mat.uuid}`;
       let b = buckets.get(key);
       if (!b) buckets.set(key, (b = { comp, mat, p: [], n: [], t: [], g: [] }));
