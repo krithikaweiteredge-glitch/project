@@ -179,4 +179,7 @@ body.site .stage-legend span::before { content: ''; width: 8px; height: 8px; bor
   body.site .inspx-top { flex-direction: column; align-items: flex-start; }
   body.site .inspx .systems-head { display: block !important; }
 }
-body.site .stage-legend { top: auto; bottom: 86px; left: 16px; }
+/* legend top-left, level with the zoom buttons, so the part switcher at the bottom never covers it */
+body.site .stage-legend { top: 26px; bottom: auto; left: 16px; }
+body.site .inspx-stage { container-type: inline-size; }
+@container (max-width: 600px) { body.site .stage-legend { top: 66px; } }   /* narrow view: below the buttons */

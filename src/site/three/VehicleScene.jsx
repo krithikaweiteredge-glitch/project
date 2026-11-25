@@ -23,6 +23,7 @@ export const colourAt = (p) => smooth(2.2, 2.9, p);
 // physically based finishes for the material hints the models carry
 const FIN = {
   paint:  { metalness: 0.08, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.06 },
+  matte:  { metalness: 0.05, roughness: 0.66, clearcoat: 0.12, clearcoatRoughness: 0.55 },   // military paint
   metal:  { metalness: 0.92, roughness: 0.34, clearcoat: 0.2, clearcoatRoughness: 0.3 },
   chrome: { metalness: 1, roughness: 0.07, clearcoat: 0.6, clearcoatRoughness: 0.04 },
   rubber: { metalness: 0, roughness: 0.88, clearcoat: 0 },
@@ -37,6 +38,19 @@ function finish(hint, base, opacity, zone, map) {
   const tex = (map && TEXTURES[map]?.()) || (hint === 'carbon' ? TEXTURES.carbon() : null);
   return new THREE.MeshPhysicalMaterial({ color: base, map: tex || null, transparent: true, opacity, side: THREE.DoubleSide, envMapIntensity: hint === 'chrome' ? 1.6 : 1.15, ...f });
 }
+
+/**
+ * Where airframe health is watched on each type: the structural hotspot where fatigue cracks start, in model
+ * coordinates, with a focus radius. Selecting the airframe flies here and opens the structure cutaway at normal
+ * part size, instead of treating the whole shell as one giant part.
+ */
+const STRUCT_SPOT = {
+  helicopter: [[-1.85, 0.55, 0], 0.42],                // tail-boom-to-cabin joint
+  fighter_single_engine: [[-0.6, -0.05, 0.5], 0.4],    // wing-root attachment
+  fighter_twin_engine: [[-0.8, -0.05, 1.05], 0.45],    // wing-root attachment
+  male_uav: [[0.4, 0.26, 1.05], 0.3],                  // wing-to-boom junction
+  airliner_narrowbody: [[0.2, -0.3, 0.62], 0.55],      // wing-to-body joint
+};
 
 function prepare(model) {
   const g = model.group;
@@ -195,7 +209,11 @@ function Dots({ prep, parts, eRef, showRef, hidden, onSelect, onHover }) {
  */
 export default function VehicleScene({ model, parts, progress, inspect, sel, hover, onHover, onSelect, flagged, insets, look,
   focus = null, dots = false, explode, cmd, quality = 'full' }) {
-  const prep = useMemo(() => prepare(model), [model]);
+  const prep = useMemo(() => {
+    const p = prepare(model), spot = STRUCT_SPOT[look];
+    if (spot && p.parts.airframe) { const v = new THREE.Vector3(...spot[0]); p.parts.airframe = { home: v, centre: v.clone(), radius: spot[1] }; }
+    return p;
+  }, [model, look]);
   const light = useTheme() === 'light';
   const BG = light ? '#e9e9ed' : '#0e0e12';
   const lite = quality === 'lite';
@@ -224,8 +242,8 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
       const p = progress.current; e = explodeAt(p); c = colourAt(p);
     }
     eRef.current = e;
-    const only = inspect && !!explode?.current;   // exploded in the inspector: components only, no shell
-    prep.edgeMat.opacity = THREE.MathUtils.lerp(prep.edgeMat.opacity, inspect && !only && !show ? (light ? 0.5 : 0.38) : 0, 0.1);
+    const only = inspect && !!explode?.current, frameOpen = show === 'airframe';   // exploded in the inspector: components only, no shell
+    prep.edgeMat.opacity = THREE.MathUtils.lerp(prep.edgeMat.opacity, inspect && !only && (!show || frameOpen) ? (light ? 0.5 : 0.38) : 0, 0.1);
     prep.edgeMat.color.set(light ? '#3d5f86' : '#8fb3d9'); prep.edgeMat.visible = prep.edgeMat.opacity > 0.01;
     showRef.current = THREE.MathUtils.lerp(showRef.current, inspect ? 1 : dots ? c : 0, 0.1);
     if (spin.current) {
@@ -241,7 +259,7 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
         const m = o.material, id = o.userData.component;
         if (o.userData.body) {
           // the airframe: solid on the home page, a ghost in the inspector so the components inside show
-          m.opacity = THREE.MathUtils.lerp(m.opacity, inspect ? (only || show ? 0 : 0.06) : (1 - 0.9 * e) * (show ? 0.4 : 1), 0.12);
+          m.opacity = THREE.MathUtils.lerp(m.opacity, inspect ? (only || (show && !frameOpen) ? 0 : 0.06) : (1 - 0.9 * e) * (show ? 0.4 : 1), 0.12);
           if (inspect) m.color.lerp(XRAY, 0.2);
           m.depthWrite = m.opacity > 0.6;
           o.visible = !inspect || m.opacity > 0.01;
@@ -252,13 +270,17 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
         const hc = d ? healthColor(d.health, d.verdict) : '#94a3b8';
         const isSel = id === sel, isHover = id === hover, isFlag = flagged.includes(id), isShown = id === show && !!look;
         // the airframe skin of a real model is a component too: in the inspector it is the ghost
-        const skin = inspect && id === 'airframe' && !isSel;   // the airframe is the see-through shell in the inspector
+        // the airframe is the whole shell: never tint it by health (a Caution would turn the whole aircraft yellow).
+        // Its status shows on its dot at the structural hotspot; in the inspector the shell is the see-through outline.
+        const shell = id === 'airframe', skin = inspect && shell;
         if (skin) m.color.copy(o.userData.baseColor).lerp(XRAY, 0.85);
-        else m.color.copy(o.userData.baseColor).lerp(tmp.set(hc), c * (o.userData.keep ? 0.12 : isSel ? 0.35 : inspect ? 0.22 : 0.3));
+        else m.color.copy(o.userData.baseColor).lerp(tmp.set(hc), shell ? 0 : c * (o.userData.keep ? 0.12 : isSel ? 0.35 : inspect ? 0.22 : 0.3));
         m.emissive.set(hc);
-        m.emissiveIntensity = skin ? 0 : isSel ? 0.45 : isHover ? 0.35 : isFlag ? c * 0.25 : c * (inspect ? 0.08 : 0.05);
+        m.emissiveIntensity = skin || shell ? 0 : isSel ? 0.45 : isHover ? 0.35 : isFlag ? c * 0.25 : c * (inspect ? 0.08 : 0.05);
         const ghost = show && id !== show && !isHover;
-        m.opacity = THREE.MathUtils.lerp(m.opacity, isShown || (skin && (only || show)) ? 0 : skin ? 0.06 : ghost ? (inspect ? 0 : 0.12) : 1, inspect && ghost ? 0.25 : 0.15);
+        // outside the inspector the shell fades like the unmonitored structure, so the components inside show
+        const shellFade = (1 - 0.9 * e) * (show ? 0.4 : 1);
+        m.opacity = THREE.MathUtils.lerp(m.opacity, (isShown && !skin) || (skin && (only || (show && !frameOpen))) ? 0 : skin ? 0.06 : shell ? shellFade : ghost ? (inspect ? 0 : 0.12) : 1, inspect && ghost ? 0.25 : 0.15);
         o.visible = m.opacity > 0.02;
         m.depthWrite = m.opacity > 0.6;
         const want = m.opacity < 0.98 || !!o.userData.origTransparent;
@@ -274,7 +296,7 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
       let wantDist = R * (3.15 + (prep.exploded / R - 1) * 1.55 * e) * (insets.current.zoom || 1);
       if (show && prep.parts[show]) {
         model.group.localToWorld(partAt(prep.parts[show], e, wantTarget));
-        wantDist = THREE.MathUtils.clamp(prep.parts[show].radius * (look ? (inspect ? 9 : 6.2) : 9), R * 0.35, R * 2.8);
+        wantDist = THREE.MathUtils.clamp(prep.parts[show].radius * (show === 'airframe' && STRUCT_SPOT[look] ? 17 : look ? (inspect ? 9 : 6.2) : 9), R * 0.35, R * 2.8);   // the airframe hotspot is shown in context
       }
       if (cmd?.current?.reset) { focusN.current = 110; cmd.current.reset = false; }
       const easing = focusN.current > 0; if (easing) focusN.current -= 1;
