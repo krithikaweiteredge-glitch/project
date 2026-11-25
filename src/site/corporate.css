@@ -71,10 +71,11 @@ body.site .twin-legend span::before { content: ''; width: 8px; height: 8px; bord
 }
 
 /* ======================= HOME: 3D product hero ======================= */
-body.site .hero3d { position: relative; height: 100svh; min-height: 680px; overflow: hidden; background: var(--stage); border-bottom: 1px solid var(--line); }
+/* at least one screen tall, but it grows with its text, so the tabs are never cut off on short windows */
+body.site .hero3d { position: relative; min-height: max(100svh, 680px); display: flex; flex-direction: column; justify-content: center; padding: 132px var(--pad) 104px; overflow: hidden; background: var(--stage); border-bottom: 1px solid var(--line); }
 body.site .hero3d-canvas { position: absolute; inset: 0; }
 body.site .hero3d-canvas canvas { position: absolute !important; inset: 0; }
-body.site .hero3d-copy { position: absolute; left: var(--pad); top: 50%; transform: translateY(-46%); width: min(620px, 44vw); z-index: 2; }
+body.site .hero3d-copy { position: relative; width: min(620px, 44vw); z-index: 2; }
 body.site .hero3d-copy .eyebrow { animation: fadeup .9s var(--ease) both; }
 body.site .hero3d-copy h1 { font-size: clamp(44px, 5.2vw, 88px) !important; line-height: 1.0 !important; margin-top: 22px; animation: fadeup 1s .08s var(--ease) both; }
 body.site .hero3d-copy p { font: 400 clamp(16px, 1.2vw, 18.5px)/1.65 var(--sans); color: var(--ink2); margin-top: 22px; max-width: 540px; animation: fadeup 1s .16s var(--ease) both; }
@@ -87,13 +88,12 @@ body.site .hero3d-classes b { display: block; height: 100%; width: 0; background
 body.site .hero3d-classes .on b { animation: fill linear forwards; }
 body.site .hero3d-tag { position: absolute; right: var(--pad); bottom: 28px; z-index: 2; display: flex; align-items: center; gap: 10px; font: 600 10.5px var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--ink2); }
 @media (max-width: 980px) {
-  body.site .hero3d { height: auto; min-height: 0; padding: 110px var(--pad) 0; display: flex; flex-direction: column; }
+  body.site .hero3d { min-height: 0; padding: 110px var(--pad) 100px; justify-content: flex-start; }   /* room under the tabs for the legend and label */
   body.site .hero3d-copy { position: relative; left: 0; top: 0; transform: none; width: 100%; }
   body.site .hero3d-canvas { position: relative; inset: auto; height: 52svh; min-height: 340px; margin: 10px calc(var(--pad) * -1) 0; }
   body.site .hero3d-tag { bottom: 14px; }
   body.site .hero3d-classes { flex-wrap: wrap; gap: 6px 20px; margin-top: 36px; }
 }
-@media (min-width: 981px) { body.site .hero3d-copy { top: calc(50% + 34px); } }
 
 /* labels on the internal cutaway */
 body.site .int-tag { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; padding: 5px 9px; border-radius: 4px; background: var(--glass); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); backdrop-filter: blur(8px); font: 600 11px var(--sans); color: var(--ink); transform: translate(8px, -50%); }
