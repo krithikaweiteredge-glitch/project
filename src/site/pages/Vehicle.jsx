@@ -8,17 +8,15 @@ import { demoVehicle, fetchAircraft, fetchHistory, fromLive, liveFor } from '../
 import { buildModel } from '../three/models';
 import VehicleScene from '../three/VehicleScene';
 import { useGLTF } from '@react-three/drei';
-import { composePredator, PREDATOR_URL } from '../three/predator';
 import { composeLaunch, composeSatellite, DRACO, NASA } from '../three/realmodels';
 import Inspector from '../ui/Inspector';
 
 const RANK = { 'NO-GO': 0, NO_GO: 0, CAUTION: 1, UNKNOWN: 2, SAFE: 3, GO: 3 };
 const isFlag = (v) => v === 'NO-GO' || v === 'NO_GO' || v === 'CAUTION';
 
-/** the vehicle's 3D model: the real Predator for the MALE UAV, detailed shape-built models for the rest */
+/** the vehicle's 3D model: built in code to match the aircraft in its photo (Heron, Tejas, Su-30MKI, Dhruv, A320, Matrice) */
 export default function Vehicle({ look }) {
   const l = VEHICLES[look] ? look : 'quadcopter';
-  if (l === 'male_uav') return <PredatorVehicle />;
   if (l === 'satellite') return <HubbleVehicle />;
   if (l === 'launch_vehicle') return <LaunchVehicle />;
   return <BuiltVehicle look={look} />;
@@ -26,11 +24,6 @@ export default function Vehicle({ look }) {
 function BuiltVehicle({ look }) {
   const model = useMemo(() => buildModel(VEHICLES[look] ? look : 'quadcopter', []), [look]);
   return <VehicleView look={look} model={model} />;
-}
-function PredatorVehicle() {
-  const { scene } = useGLTF(PREDATOR_URL);
-  const model = useMemo(() => composePredator(scene), [scene]);
-  return <VehicleView look="male_uav" model={model} />;
 }
 
 function HubbleVehicle() {

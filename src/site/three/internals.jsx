@@ -462,7 +462,7 @@ export function internalFor(look, id) {
   if (is('apu')) return { C: Turbofan, p: { shaft: true } };
   if (is('motor')) return { C: Motor };
   if (is('esc') || is('inverter')) return { C: Esc };
-  if (is('propeller') || is('rotor')) return { C: RotorHead, p: { blades: look === 'male_uav' ? 3 : 2, prop: true } };
+  if (is('propeller') || is('rotor')) return { C: RotorHead, p: { blades: 2, prop: true } };
   if (is('main_rotor')) return { C: RotorHead, p: { blades: 4 } };
   if (is('tail_rotor')) return { C: RotorHead, p: { blades: look === 'helicopter' ? 4 : 2 } };
   if (is('battery')) return { C: Battery };

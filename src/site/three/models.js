@@ -372,6 +372,127 @@ function maleUav() {
   return b;
 }
 
+/** flat planform from [x, z] points (x forward, z outboard), extruded to a thin rounded slab - wings that a
+ *  simple trapezoid can't describe (compound deltas, LERX) */
+function planGeo(pts, thick = 0.08) {
+  const s = new THREE.Shape(); s.moveTo(pts[0][0], pts[0][1]); for (const [x, z] of pts.slice(1)) s.lineTo(x, z); s.closePath();
+  const b = thick * 0.45;
+  const g = new THREE.ExtrudeGeometry(s, { depth: thick - 2 * b, bevelEnabled: true, bevelThickness: b, bevelSize: b * 0.9, bevelSegments: 4 });
+  g.rotateX(Math.PI / 2); g.translate(0, thick / 2 - b, 0); g.computeVertexNormals();
+  return g;
+}
+/** one undercarriage leg added to an existing assembly (for aircraft whose whole gear is one monitored part) */
+function legInto(a, [x, y, z], h, wr, wheels = 1) {
+  a(cyl(0.035, 0.035, h * 0.6), [x, y - h * 0.3, z], null, 0x8b9198, 'metal');
+  a(cyl(0.024, 0.024, h * 0.45), [x, y - h * 0.75, z], null, 0xe6e9ec, 'chrome');
+  for (let k = 0; k < wheels; k++) {
+    const dz = wheels > 1 ? (k - (wheels - 1) / 2) * wr * 1.3 : 0;
+    a(torus(wr * 0.72, wr * 0.3), [x, y - h, z + dz], null, 0x101113, 'rubber');
+    a(cyl(wr * 0.48, wr * 0.48, wr * 0.5), [x, y - h, z + dz], [Math.PI / 2, 0, 0], 0xb8bdc3, 'metal');
+  }
+}
+/** a fighter's afterburning exhaust: nozzle petals and the turbine face - one monitored part */
+function fighterNozzle(b, id, pos, r = 0.34) {
+  const a = b.asm(id, pos);
+  a(cyl(r, r * 1.12, 0.8, true), null, [0, 0, Math.PI / 2], 0x4c5057, 'metal');
+  for (let i = 0; i < 16; i++) a(rbox(0.38, 0.012, 0.1, 0.004), [-0.5, Math.sin((i / 16) * Math.PI * 2) * r * 0.95, Math.cos((i / 16) * Math.PI * 2) * r * 0.95], [(i / 16) * Math.PI * 2, 0, 0.12], 0x6b6f75, 'metal');
+  const ic = cone(r * 0.6, 0.5); ic.rotateZ(Math.PI / 2); a(ic, [-0.15, 0, 0], null, 0x2a2c30, 'metal');
+  return a;
+}
+
+/** HAL Tejas: tailless compound-delta wing, one large swept fin, side intakes, one GE F404 */
+function tejas() {
+  const b = new Builder(), grey = 0x8f989f, dark = 0x737c84;
+  b.part('airframe', fuselageGeo(8.2, 0.44, 0.27, 0.12, 0.95), [0, 0, 0], null, grey, { mat: 'paint' });
+  const can = b.add(sph(0.3, 0, Math.PI * 2, 0, Math.PI / 2), [2.05, 0.3, 0], null, 'glass', 0x2a3540); can.scale.set(2.3, 0.85, 0.85);
+  for (const z of [0.42, -0.42]) b.add(rbox(1.5, 0.4, 0.28, 0.09), [0.55, -0.12, z], null, 'paint', dark);    // side intakes
+  // compound delta: steep inner leading edge, shallower outer, straight trailing edge, no tailplane
+  const wing = [[0, 0], [-1.25, 0.8], [-3.95, 2.6], [-4.35, 2.6], [-4.5, 0]];
+  b.add(planGeo(wing, 0.1), [1.9, -0.05, 0.3], null, 'paint', grey);
+  b.add(planGeo(wing.map(([x, z]) => [x, -z]), 0.1), [1.9, -0.05, -0.3], null, 'paint', grey);
+  b.add(finGeo(1.75, 2.1, 0.55, 1.6, 0.07), [-1.95, 0.32, 0], null, 'paint', dark);
+  fighterNozzle(b, 'engine', [-4.1, 0, 0], 0.34);
+  gear(b, 'landing_gear_1', [2.5, -0.42, 0], 0.62, 1, 0.13); gear(b, 'landing_gear_2', [-0.9, -0.38, 0.85], 0.6, 1, 0.19); gear(b, 'landing_gear_3', [-0.9, -0.38, -0.85], 0.6, 1, 0.19);
+  // flight controls: inboard and outboard elevons on each side, and the rudder
+  const ev = (id, z, w) => b.part(id, rbox(0.32, 0.05, w, 0.015), [-2.45, -0.05, z], null, 0xa7aeb5, { mat: 'paint' });
+  ev('flight_actuator_1', 1.0, 0.9); ev('flight_actuator_2', -1.0, 0.9); ev('flight_actuator_3', 2.05, 0.9); ev('flight_actuator_4', -2.05, 0.9);
+  b.part('flight_actuator_5', rbox(0.32, 0.95, 0.06, 0.015), [-3.8, 1.05, 0], null, 0xa7aeb5, { mat: 'paint' });
+  zone(b, 'avionics', [0.8, 0.4, 0.5], [2.9, 0, 0]); zone(b, 'electrical', [0.6, 0.3, 0.5], [1.3, -0.2, 0]);
+  zone(b, 'ecs', [0.6, 0.3, 0.5], [0.7, 0.15, 0]); zone(b, 'fuel', [1.8, 0.3, 0.6], [-0.6, 0.0, 0]);
+  zone(b, 'hydraulics_1', [0.5, 0.3, 0.4], [-1.8, -0.15, 0.2]); zone(b, 'hydraulics_2', [0.5, 0.3, 0.4], [-1.8, -0.15, -0.2]);
+  return b;
+}
+
+/** Sukhoi Su-30MKI: long nose, canards, lifting centre-body, two widely spaced AL-31FP engines, twin vertical
+ *  fins on the nacelles, all-moving tailplanes, tandem two-seat canopy */
+function su30() {
+  const b = new Builder(), grey = 0x8e9ba6, dark = 0x6d7a85;
+  b.part('airframe', fuselageGeo(9.8, 0.4, 0.26, 0.1, 0.92), [0.4, 0.05, 0], null, grey, { mat: 'paint' });
+  b.add(rbox(4.6, 0.3, 1.6, 0.12), [-1.2, -0.08, 0], null, 'paint', grey);                                       // lifting centre-body
+  const can = b.add(sph(0.3, 0, Math.PI * 2, 0, Math.PI / 2), [2.85, 0.32, 0], null, 'glass', 0x2a3540); can.scale.set(3.0, 0.85, 0.85);
+  for (const z of [0.78, -0.78]) {
+    const nac = cyl(0.33, 0.3, 4.6); nac.rotateZ(Math.PI / 2);
+    b.add(nac, [-1.5, -0.2, z], null, 'paint', grey);                                                             // engine nacelle
+    b.add(rbox(1.3, 0.45, 0.5, 0.06), [1.25, -0.28, z], null, 'paint', dark);                                     // intake under the LERX
+  }
+  const wing = [[0, 0], [-1.7, 0.55], [-4.0, 3.65], [-4.85, 3.65], [-5.25, 0.55], [-5.25, 0]];                    // LERX + cropped delta
+  b.add(planGeo(wing, 0.1), [2.15, -0.05, 0.4], null, 'paint', grey);
+  b.add(planGeo(wing.map(([x, z]) => [x, -z]), 0.1), [2.15, -0.05, -0.4], null, 'paint', grey);
+  const cn = wingGeo(0.7, 0.28, 0.85, 0.5, 0.05);
+  b.add(cn, [2.3, 0.12, 0.4], null, 'paint', grey); b.add(mirrorZ(cn), [2.3, 0.12, -0.4], null, 'paint', grey);  // canards
+  const fin = finGeo(1.75, 1.9, 0.55, 1.4, 0.07);
+  b.add(fin, [-2.2, 0.1, 0.85], null, 'paint', dark); b.add(fin.clone(), [-2.2, 0.1, -0.85], null, 'paint', dark);
+  b.add(cyl(0.05, 0.05, 1.2), [-4.3, 0.0, 0], [0, 0, Math.PI / 2], 'metal', 0x6b6f75);                         // tail sting
+  fighterNozzle(b, 'engine_1', [-4.0, -0.2, 0.78], 0.33); fighterNozzle(b, 'engine_2', [-4.0, -0.2, -0.78], 0.33);
+  gear(b, 'landing_gear_1', [3.6, -0.42, 0], 0.68, 2, 0.13); gear(b, 'landing_gear_2', [-1.0, -0.45, 1.3], 0.65, 1, 0.22); gear(b, 'landing_gear_3', [-1.0, -0.45, -1.3], 0.65, 1, 0.22);
+  // flight controls: ailerons, all-moving tailplanes (the whole surface is the monitored part), rudders
+  b.part('flight_actuator_1', rbox(0.3, 0.05, 1.1, 0.015), [-2.55, -0.05, 3.3], null, 0xa7aeb5, { mat: 'paint' });
+  b.part('flight_actuator_2', rbox(0.3, 0.05, 1.1, 0.015), [-2.55, -0.05, -3.3], null, 0xa7aeb5, { mat: 'paint' });
+  const tp = wingGeo(1.35, 0.45, 1.35, 0.95, 0.06);
+  b.part('flight_actuator_3', tp, [-2.85, -0.12, 1.1], null, 0xa7aeb5, { mat: 'paint' });
+  b.part('flight_actuator_4', mirrorZ(tp), [-2.85, -0.12, -1.1], null, 0xa7aeb5, { mat: 'paint' });
+  b.part('flight_actuator_5', rbox(0.3, 0.95, 0.06, 0.015), [-3.9, 0.95, 0.85], null, 0xa7aeb5, { mat: 'paint' });
+  b.part('flight_actuator_6', rbox(0.3, 0.95, 0.06, 0.015), [-3.9, 0.95, -0.85], null, 0xa7aeb5, { mat: 'paint' });
+  zone(b, 'avionics', [0.9, 0.4, 0.5], [3.7, 0.05, 0]); zone(b, 'electrical', [0.6, 0.3, 0.5], [1.6, -0.15, 0]);
+  zone(b, 'ecs', [0.6, 0.3, 0.5], [1.0, 0.1, 0]); zone(b, 'fuel', [2.0, 0.25, 1.2], [-0.6, -0.05, 0]);
+  zone(b, 'hydraulics_1', [0.5, 0.3, 0.4], [-2.0, -0.15, 0.78]); zone(b, 'hydraulics_2', [0.5, 0.3, 0.4], [-2.0, -0.15, -0.78]);
+  b.part('apu', rbox(0.4, 0.25, 0.3, 0.05), [-2.9, 0.0, 0], null, 0x8e959d, { mat: 'metal' });
+  return b;
+}
+
+/** IAI Heron 1: slender pod with nose turret and satcom mast, long high wing, twin booms with twin fins joined by
+ *  the tailplane at the bottom, Rotax 914 driving a pusher propeller, tricycle undercarriage */
+function heron() {
+  const b = new Builder(), grey = 0x7f8a94, dark = 0x66717b;
+  b.part('airframe', fuselageGeo(4.7, 0.36, 0.2, 0.34, 1.0), [0.55, 0, 0], null, grey, { mat: 'paint' });
+  b.add(sph(0.16), [2.6, -0.3, 0], null, 'glass', 0x10151c);                                                    // sensor turret
+  b.add(cyl(0.07, 0.09, 0.12), [2.6, -0.2, 0], null, 'metal', dark);
+  b.add(cyl(0.028, 0.028, 0.34), [1.55, 0.5, 0], null, 'paint', grey);                                          // satcom mast
+  const dome = b.add(sph(0.16, 0, Math.PI * 2, 0, Math.PI / 2), [1.55, 0.67, 0], null, 'paint', grey); dome.scale.set(1, 0.45, 1);
+  const pod = b.add(sph(0.3), [0.55, -0.3, 0], null, 'paint', 0xcfb43c); pod.scale.set(1.9, 0.55, 0.85);       // belly fairing
+  const w = wingGeo(0.62, 0.36, 5.1, 0.12, 0.07);
+  b.add(w, [0.75, 0.28, 0.3], null, 'paint', grey); b.add(mirrorZ(w), [0.75, 0.28, -0.3], null, 'paint', grey);
+  for (const z of [1.05, -1.05]) {
+    b.add(cyl(0.055, 0.055, 3.4), [-1.4, 0.24, z], [0, 0, Math.PI / 2], 'paint', grey);                            // tail boom
+    b.add(finGeo(0.85, 0.66, 0.42, 0.26, 0.05), [-2.6, 0.24, z], null, 'paint', grey);                          // fin, above
+    b.add(finGeo(0.36, 0.66, 0.52, 0.1, 0.05), [-2.6, 0.24, z], [Math.PI, 0, 0], 'paint', grey);                // fin, below
+  }
+  b.add(rbox(0.5, 0.05, 2.2, 0.015), [-2.95, -0.1, 0], null, 'paint', grey);                                     // tailplane joining the fins
+  const e = b.asm('engine', [-1.75, 0, 0]);
+  e(cyl(0.21, 0.24, 0.55), null, [0, 0, Math.PI / 2], 0x4c5057, 'metal');
+  for (let i = 0; i < 6; i++) e(torus(0.235, 0.01), [0.2 - i * 0.07, 0, 0], [0, Math.PI / 2, 0], 0x7d838a, 'metal');
+  rotor(b, 'propeller', [-2.12, 0, 0], 0.62, 2, 'x', 0.13);
+  const g = b.asm('landing_gear', [0, 0, 0]);
+  legInto(g, [2.15, -0.3, 0], 0.5, 0.12); legInto(g, [0.25, -0.3, 0.42], 0.5, 0.15); legInto(g, [0.25, -0.3, -0.42], 0.5, 0.15);
+  b.part('actuator_1', rbox(0.18, 0.04, 1.5, 0.012), [0.22, 0.28, 4.3], null, 0xa7aeb5, { mat: 'paint' });      // ailerons
+  b.part('actuator_2', rbox(0.18, 0.04, 1.5, 0.012), [0.22, 0.28, -4.3], null, 0xa7aeb5, { mat: 'paint' });
+  b.part('actuator_3', rbox(0.16, 0.04, 2.0, 0.012), [-3.25, -0.1, 0], null, 0xa7aeb5, { mat: 'paint' });       // elevator
+  b.part('actuator_4', rbox(0.16, 0.6, 0.035, 0.012), [-3.2, 0.55, 1.05], null, 0xa7aeb5, { mat: 'paint' });    // rudder
+  zone(b, 'avionics', [0.6, 0.3, 0.4], [1.9, 0.05, 0]); zone(b, 'fuel', [1.0, 0.3, 0.45], [0.4, 0.05, 0]);
+  zone(b, 'electrical', [0.5, 0.25, 0.35], [-1.1, 0, 0]);
+  return b;
+}
+
 /** utility helicopter in the class of the HAL Dhruv (ALH): Army olive, twin turboshafts, four-blade hingeless rotor */
 function helicopter() {
   const b = new Builder();
@@ -534,8 +655,8 @@ function generic(componentIds) {
 export function buildModel(look, componentIds) {
   const t = {
     quadcopter: () => multirotor(4, {}, {}), hexacopter: () => multirotor(6, {}, { arm: 1.2, batteries: 2, offset: 0 }),
-    evtol, airliner_narrowbody: airliner, fighter_single_engine: () => fighter(false), fighter_twin_engine: () => fighter(true),
-    turboprop_transport: turboprop, male_uav: maleUav, helicopter, launch_vehicle: launchVehicle, satellite, wind_turbine: windTurbine,
+    evtol, airliner_narrowbody: airliner, fighter_single_engine: tejas, fighter_twin_engine: su30,
+    turboprop_transport: turboprop, male_uav: heron, helicopter, launch_vehicle: launchVehicle, satellite, wind_turbine: windTurbine,
     missile_round: missileRound, custom: machine,
   }[look];
   const b = t ? t() : generic(componentIds);

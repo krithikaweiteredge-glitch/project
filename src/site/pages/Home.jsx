@@ -6,7 +6,7 @@ import { href } from '../router';
 import { useFleet } from '../useFleet';
 import Reveal from '../ui/Reveal';
 import { Magnetic, Split, useInView } from '../ui/motion';
-import { BuiltTwin, PredatorTwin, LOOP_S, loopAt } from '../ui/TwinShowcase';
+import { BuiltTwin, LOOP_S, loopAt } from '../ui/TwinShowcase';
 
 function Ticker() {
   const fleet = useFleet();
@@ -76,7 +76,7 @@ function Hero() {
         <Canvas frameloop={visible ? 'always' : 'never'} dpr={[1, 1.5]} gl={{ antialias: true, powerPreference: 'high-performance' }} camera={{ fov: 30 }}
           onCreated={(st) => { st.gl.toneMapping = THREE.AgXToneMapping; }}>
           <Suspense fallback={null}>
-            {look === 'male_uav' ? <PredatorTwin phase={phase} insets={insets} /> : <BuiltTwin key={look} look={look} phase={phase} insets={insets} />}
+            <BuiltTwin key={look} look={look} phase={phase} insets={insets} />
           </Suspense>
         </Canvas>
       </div>

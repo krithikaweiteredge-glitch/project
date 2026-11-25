@@ -109,7 +109,7 @@ export default function TwinShowcase() {
           <Canvas shadows="soft" dpr={[1.25, 2]} gl={{ antialias: false, powerPreference: 'high-performance' }} camera={{ fov: 30 }}
             onCreated={(s) => { s.gl.toneMapping = THREE.AgXToneMapping; }}>
             <Suspense fallback={null}>
-              {look === 'male_uav' ? <PredatorTwin phase={phase} focus={focus} /> : <BuiltTwin key={look} look={look} phase={phase} focus={focus} />}
+              <BuiltTwin key={look} look={look} phase={phase} focus={focus} />
             </Suspense>
           </Canvas>
         )}

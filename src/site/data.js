@@ -19,7 +19,7 @@ export const VEHICLES = {
     text: 'Medium-altitude long-endurance UAVs fly missions measured in days. Engine, propeller, control actuators and avionics are judged after every sortie.', unit: 'sorties' },
   fighter_single_engine: { name: 'Fighter (single engine)', cat: 'fighters', tag: 'One engine. No margin for guessing.', examples: 'HAL Tejas Mk1 · Tejas Mk1A',
     text: 'With one engine there is no second chance. Engine, hydraulics, five flight-control actuators, gear, fuel, ECS, power and avionics are judged before every sortie.', unit: 'sorties' },
-  fighter_twin_engine: { name: 'Fighter (twin engine)', cat: 'fighters', tag: 'Twin engines, twin hydraulics, one verdict.', examples: 'Su-30MKI · Dassault Rafale',
+  fighter_twin_engine: { name: 'Fighter (twin engine)', cat: 'fighters', tag: 'Twin engines, twin hydraulics, one verdict.', examples: 'Sukhoi Su-30MKI · Indian Air Force',
     text: 'Twin-engine fast jets add an APU and more actuators. IVHM compares the two engines against each other as well as against their own learned normal.', unit: 'sorties' },
   airliner_narrowbody: { name: 'Narrow-body airliner', cat: 'airliners', tag: 'Two engines, six cycles a day, every one accounted for.', examples: 'Airbus A320 family · Air India · IndiGo · Air India Express',
     text: 'A320-class twin-jets with CFM56 turbofans. IVHM tracks both engines cycle by cycle against NASA run-to-failure data, along with the gear, APU, flight controls, wing structure, hydraulics, fuel and air conditioning.', unit: 'cycles' },
