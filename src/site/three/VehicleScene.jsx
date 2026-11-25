@@ -200,6 +200,119 @@ function Dots({ prep, parts, eRef, showRef, hidden, onSelect, onHover }) {
 }
 
 /**
+ * Callouts for the home page: the key components of each type named like a technical illustration. A small
+ * marker on the part, a thin leader line pushed outward from the aircraft, and a label with the part's name
+ * and health. They follow the parts as the aircraft splits and rejoins.
+ */
+const CALLOUTS = {
+  helicopter: [['main_rotor', 'Main rotor'], ['main_gearbox', 'Main gearbox'], ['engine_1', 'Shakti turboshaft'], ['tail_rotor', 'Tail rotor'],
+    ['tail_gearbox', 'Tail gearbox'], ['drive_bearing_2', 'Tail drive shaft'], ['landing_gear', 'Skid gear']],
+  fighter_single_engine: [['engine', 'F404 turbofan'], ['flight_actuator_3', 'Elevon actuator'], ['flight_actuator_5', 'Rudder actuator'],
+    ['landing_gear_1', 'Nose gear'], ['landing_gear_2', 'Main gear'], ['fuel', 'Fuel system']],
+  fighter_twin_engine: [['engine_1', 'AL-31FP turbofan'], ['flight_actuator_3', 'All-moving tailplane'], ['flight_actuator_5', 'Rudder actuator'],
+    ['flight_actuator_1', 'Aileron actuator'], ['landing_gear_1', 'Nose gear'], ['landing_gear_2', 'Main gear'], ['apu', 'APU']],
+  male_uav: [['engine', 'Rotax 914 engine'], ['propeller', 'Pusher propeller'], ['actuator_1', 'Aileron actuator'], ['actuator_3', 'Elevator actuator'],
+    ['actuator_4', 'Rudder actuator'], ['landing_gear', 'Landing gear'], ['avionics', 'Avionics']],
+  quadcopter: [['motor_1', 'Brushless motor'], ['propeller_2', 'Propeller'], ['esc_3', 'Speed controller'], ['battery', 'Battery pack'], ['avionics', 'Flight controller']],
+  hexacopter: [['motor_1', 'Brushless motor'], ['propeller_3', 'Propeller'], ['esc_4', 'Speed controller'], ['battery_1', 'Battery pack'], ['avionics', 'Flight controller']],
+  airliner_narrowbody: [['engine_1', 'CFM56 turbofan'], ['apu', 'APU'], ['landing_gear_2', 'Main gear'], ['landing_gear_1', 'Nose gear'],
+    ['flight_actuator_7', 'Rudder actuator'], ['flight_actuator_1', 'Aileron actuator'], ['wing_panel_1', 'Wing panel']],
+};
+
+/**
+ * Home page: the labelled parts shown as their detailed models (the same ones the inspector opens) in place of
+ * their simple shapes, sized to the part, while the aircraft is apart. A drone battery shows its cells and wiring,
+ * an engine its compressor and turbine, instead of a box.
+ */
+function Detailed({ prep, parts, eRef, showRef, look }) {
+  const items = useMemo(() => (CALLOUTS[look] || []).filter(([id]) => prep.parts[id]).map(([id]) => ({ id, entry: internalFor(look, id) })), [look, prep]);
+  const refs = useRef([]);
+  useFrame(() => {
+    const on = showRef.current;
+    items.forEach(({ id }, i) => {
+      const g = refs.current[i]; if (!g) return;
+      partAt(prep.parts[id], eRef.current, g.position);
+      g.scale.setScalar(prep.parts[id].radius * 0.95 * Math.max(on, 0.001));   // the detailed models are ~2.2 units across
+      g.visible = on > 0.02;
+    });
+  });
+  return items.map(({ id, entry: { C, p = {} } }, i) => {
+    const subs = parts[id]?.subparts || {};
+    const colour = (key) => (subs[key] != null ? healthColor(subs[key]) : null);
+    return <group key={id} ref={(el) => (refs.current[i] = el)}><C c={colour} {...p} /></group>;
+  });
+}
+
+function Callouts({ prep, parts, eRef, showRef, look, onSelect, avoid }) {
+  const { camera, size, gl } = useThree();
+  const items = useMemo(() => (CALLOUTS[look] || Object.keys(prep.parts).slice(0, 6).map((id) => [id, parts[id]?.name || id]))
+    .filter(([id]) => prep.parts[id]), [look, prep, parts]);
+  const anchors = useRef([]), boxes = useRef([]), keep = useRef({ n: 0, rect: null });
+  const v = useMemo(() => new THREE.Vector3(), []), c = useMemo(() => new THREE.Vector3(), []);
+  useFrame(() => {
+    const on = showRef.current;
+    const parent = anchors.current.find(Boolean)?.parent;
+    if (!parent) return;
+    // the page text to keep clear of (e.g. the hero headline), in canvas pixels; re-read twice a second
+    if (avoid && keep.current.n-- <= 0) {
+      keep.current.n = 30;
+      const t = document.querySelector(avoid)?.getBoundingClientRect(), cv = gl.domElement.getBoundingClientRect();
+      keep.current.rect = t ? { l: t.left - cv.left - 12, r: t.right - cv.left + 12, t: t.top - cv.top - 12, b: t.bottom - cv.top + 12 } : null;
+    }
+    const hits = (a, b) => b && a.l < b.r && a.r > b.l && a.t < b.b && a.b > b.t;
+    c.copy(prep.centre); parent.localToWorld(c); c.project(camera);
+    const placed = [];
+    items.forEach(([id], i) => {
+      const g = anchors.current[i], el = boxes.current[i];
+      if (!g || !el) return;
+      partAt(prep.parts[id], eRef.current, g.position);
+      g.getWorldPosition(v).project(camera);
+      const ax = (v.x + 1) / 2 * size.width, ay = (1 - v.y) / 2 * size.height;
+      // push the label outward from the aircraft's centre on screen, never straight up or down
+      let dx = (v.x - c.x) * size.width, dy = -(v.y - c.y) * size.height;
+      const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
+      if (Math.abs(dy) > 0.92) { dx = (dx >= 0 ? 1 : -1) * 0.45; dy = Math.sign(dy) * 0.9; }
+      const tag = el.lastChild, w = (tag?.offsetWidth || 120) + 8, h = (tag?.offsetHeight || 22) + 6;
+      const anchorBox = { l: ax - 6, r: ax + 6, t: ay - 6, b: ay + 6 };
+      // try straight out from the aircraft first, then four diagonals, at three line lengths; skip the label if
+      // every option would cover the page text, leave the view, or overlap a label already placed
+      const dirs = [[dx, dy], [0.94, -0.34], [0.94, 0.34], [-0.94, -0.34], [-0.94, 0.34]];
+      let ok = null;
+      if (!hits(anchorBox, keep.current.rect)) {
+        search: for (const [ux, uy] of dirs) for (const L of [56, 84, 112]) {
+          const ex = ax + ux * L, ey = ay + uy * L, right = ux >= 0;
+          const box = right ? { l: ex, r: ex + w, t: ey - h / 2, b: ey + h / 2 } : { l: ex - w, r: ex, t: ey - h / 2, b: ey + h / 2 };
+          const inside = box.l > 4 && box.r < size.width - 4 && box.t > 4 && box.b < size.height - 4;
+          if (inside && !hits(box, keep.current.rect) && !placed.some((p) => hits(box, p))) { ok = { L, box, ux, uy, right }; break search; }
+        }
+      }
+      if (!ok) { el.style.opacity = '0'; el.style.visibility = 'hidden'; return; }
+      placed.push(ok.box);
+      el.style.visibility = 'visible'; el.style.opacity = on.toFixed(3);
+      el.style.setProperty('--len', `${ok.L}px`); el.style.setProperty('--ang', `${Math.atan2(ok.uy, ok.ux)}rad`);
+      el.style.setProperty('--tx', `${ok.ux * ok.L}px`); el.style.setProperty('--ty', `${ok.uy * ok.L}px`);
+      el.dataset.side = ok.right ? 'r' : 'l';
+    });
+  });
+  return items.map(([id, name], i) => {
+    const d = parts[id], col = d ? healthColor(d.health, d.verdict) : '#94a3b8';
+    return (
+      <group key={id} ref={(el) => (anchors.current[i] = el)}>
+        <Html zIndexRange={[15, 5]} style={{ pointerEvents: 'none' }}>
+          <div className="callout" ref={(el) => (boxes.current[i] = el)} style={{ '--c': col, opacity: 0 }}>
+            <i className="co-mark" />
+            <span className="co-line" />
+            <button className="co-tag" style={{ pointerEvents: 'auto' }} onClick={() => onSelect?.(id)}>
+              <b>{name}</b>{d?.health != null && <em>{Math.round(d.health * 100)}%</em>}
+            </button>
+          </div>
+        </Html>
+      </group>
+    );
+  });
+}
+
+/**
  * The 3D twin.
  *  inspect  - the interactive inspector: see-through airframe, components highlighted, dots, click to select
  *  explode  - ref: true to take the aircraft apart (inspector toggle); outside the inspector `progress` drives it
@@ -231,6 +344,7 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
   }, [prep, camera, R]);
   useEffect(() => { focusN.current = 110; }, [sel, inspect, focus]);
   const show = inspect ? sel : focus;            // the part opened up to show its internals
+  const swapIds = useMemo(() => new Set(dots && !inspect ? (CALLOUTS[look] || []).map(([id]) => id) : []), [dots, inspect, look]);
 
   const off = useRef({ x: 0, y: 0 });
   useFrame((state, dt) => {
@@ -243,7 +357,7 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
     }
     eRef.current = e;
     const only = inspect && !!explode?.current, frameOpen = show === 'airframe';   // exploded in the inspector: components only, no shell
-    prep.edgeMat.opacity = THREE.MathUtils.lerp(prep.edgeMat.opacity, inspect && !only && (!show || frameOpen) ? (light ? 0.5 : 0.38) : 0, 0.1);
+    prep.edgeMat.opacity = THREE.MathUtils.lerp(prep.edgeMat.opacity, inspect && !only && (!show || frameOpen) ? (light ? 0.62 : 0.52) : 0, 0.1);
     prep.edgeMat.color.set(light ? '#3d5f86' : '#8fb3d9'); prep.edgeMat.visible = prep.edgeMat.opacity > 0.01;
     showRef.current = THREE.MathUtils.lerp(showRef.current, inspect ? 1 : dots ? c : 0, 0.1);
     if (spin.current) {
@@ -259,7 +373,7 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
         const m = o.material, id = o.userData.component;
         if (o.userData.body) {
           // the airframe: solid on the home page, a ghost in the inspector so the components inside show
-          m.opacity = THREE.MathUtils.lerp(m.opacity, inspect ? (only || (show && !frameOpen) ? 0 : 0.06) : (1 - 0.9 * e) * (show ? 0.4 : 1), 0.12);
+          m.opacity = THREE.MathUtils.lerp(m.opacity, inspect ? (only || (show && !frameOpen) ? 0 : 0.16) : (1 - 0.9 * e) * (show ? 0.4 : 1), 0.12);
           if (inspect) m.color.lerp(XRAY, 0.2);
           m.depthWrite = m.opacity > 0.6;
           o.visible = !inspect || m.opacity > 0.01;
@@ -267,20 +381,21 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
           return;
         }
         const d = parts[id];
+        const swap = swapIds.has(id);                 // home page: its detailed model takes its place
         const hc = d ? healthColor(d.health, d.verdict) : '#94a3b8';
         const isSel = id === sel, isHover = id === hover, isFlag = flagged.includes(id), isShown = id === show && !!look;
         // the airframe skin of a real model is a component too: in the inspector it is the ghost
         // the airframe is the whole shell: never tint it by health (a Caution would turn the whole aircraft yellow).
         // Its status shows on its dot at the structural hotspot; in the inspector the shell is the see-through outline.
         const shell = id === 'airframe', skin = inspect && shell;
-        if (skin) m.color.copy(o.userData.baseColor).lerp(XRAY, 0.85);
+        if (skin) m.color.copy(o.userData.baseColor).lerp(XRAY, 0.6);
         else m.color.copy(o.userData.baseColor).lerp(tmp.set(hc), shell ? 0 : c * (o.userData.keep ? 0.12 : isSel ? 0.35 : inspect ? 0.22 : 0.3));
         m.emissive.set(hc);
         m.emissiveIntensity = skin || shell ? 0 : isSel ? 0.45 : isHover ? 0.35 : isFlag ? c * 0.25 : c * (inspect ? 0.08 : 0.05);
         const ghost = show && id !== show && !isHover;
         // outside the inspector the shell fades like the unmonitored structure, so the components inside show
         const shellFade = (1 - 0.9 * e) * (show ? 0.4 : 1);
-        m.opacity = THREE.MathUtils.lerp(m.opacity, (isShown && !skin) || (skin && (only || (show && !frameOpen))) ? 0 : skin ? 0.06 : shell ? shellFade : ghost ? (inspect ? 0 : 0.12) : 1, inspect && ghost ? 0.25 : 0.15);
+        m.opacity = THREE.MathUtils.lerp(m.opacity, (isShown && !skin) || (skin && (only || (show && !frameOpen))) ? 0 : skin ? 0.16 : shell ? shellFade : ghost ? (inspect ? 0 : 0.12) : swap ? 1 - c : 1, inspect && ghost ? 0.25 : 0.15);
         o.visible = m.opacity > 0.02;
         m.depthWrite = m.opacity > 0.6;
         const want = m.opacity < 0.98 || !!o.userData.origTransparent;
@@ -342,7 +457,9 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
             onPointerMove={(ev) => { ev.stopPropagation(); const id = pick(ev); if (id !== hover) onHover(id); document.body.style.cursor = id ? 'pointer' : ''; }}
             onPointerOut={() => { onHover(null); document.body.style.cursor = ''; }}
             onClick={(ev) => { ev.stopPropagation(); const id = pick(ev); if (id) onSelect(id); }} />
-          {(dots || inspect) && <Dots prep={prep} parts={parts} eRef={eRef} showRef={showRef} hidden={show} onSelect={onSelect} onHover={onHover} />}
+          {inspect && <Dots prep={prep} parts={parts} eRef={eRef} showRef={showRef} hidden={show} onSelect={onSelect} onHover={onHover} />}
+          {dots && !inspect && <Detailed prep={prep} parts={parts} eRef={eRef} showRef={showRef} look={look} />}
+          {dots && !inspect && <Callouts prep={prep} parts={parts} eRef={eRef} showRef={showRef} look={look} onSelect={onSelect} avoid=".hero3d-copy" />}
           {look && show && prep.parts[show] && <Internal key={show} look={look} id={show} part={parts[show]} at={posOf(show)} r={prep.parts[show].radius} floor={prep.floor - R * 0.27} />}
           {selInfo && posOf(sel) && !look && (
             <Html position={posOf(sel)} zIndexRange={[20, 10]} style={{ pointerEvents: 'none' }}>
@@ -352,7 +469,7 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
               </div>
             </Html>
           )}
-          {hovInfo && posOf(hover) && (
+          {hovInfo && posOf(hover) && !dots && (
             <Html position={posOf(hover)} center zIndexRange={[20, 10]} style={{ pointerEvents: 'none' }}>
               <div className="hover-tag" style={{ '--c': healthColor(hovInfo.health, hovInfo.verdict) }}>{hovInfo.name}<b>{Math.round((hovInfo.health ?? 0) * 100)}%</b></div>
             </Html>

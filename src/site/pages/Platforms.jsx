@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { CATEGORIES, VEHICLES } from '../data';
 import { href } from '../router';
 import { useFleet } from '../useFleet';
-import { Split } from '../ui/motion';
 import { partCount } from './Category';
 
 export default function Platforms() {
@@ -14,8 +13,6 @@ export default function Platforms() {
     <div className="page platforms">
       <header className="page-head">
         <div className="eyebrow">Platforms</div>
-        <Split as="h1" text="Choose a platform." className="pro-h" />
-        <p className="pro-body">Helicopters, fighter jets, UAVs, drones and airliners. Each type comes with its parts, sensors and service rules ready; open one to see the aircraft and inspect every component.</p>
       </header>
       <div className="ex-tabs" role="tablist">
         <button className={cat === 'all' ? 'on' : ''} onClick={() => setCat('all')}>All<sup>{Object.keys(VEHICLES).length}</sup></button>

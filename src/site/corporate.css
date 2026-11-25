@@ -184,3 +184,13 @@ body.site .stage-legend span::before { content: ''; width: 8px; height: 8px; bor
 body.site .stage-legend { top: 26px; bottom: auto; left: 16px; }
 body.site .inspx-stage { container-type: inline-size; }
 @container (max-width: 600px) { body.site .stage-legend { top: 66px; } }   /* narrow view: below the buttons */
+
+/* home page callouts: marker on the part, leader line, label with name and health */
+body.site .callout { position: relative; width: 0; height: 0; transition: opacity .35s; }
+body.site .callout .co-mark { position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--c); background: rgba(0, 0, 0, .35); box-shadow: 0 0 6px var(--c); }
+body.site .callout .co-line { position: absolute; left: 0; top: 0; width: var(--len); height: 1px; transform-origin: 0 50%; transform: rotate(var(--ang)); background: linear-gradient(90deg, var(--c), color-mix(in srgb, var(--ink) 50%, transparent)); }
+body.site .callout .co-tag { position: absolute; left: var(--tx); top: var(--ty); transform: translate(6px, -50%); display: flex; align-items: baseline; gap: 7px; white-space: nowrap; padding: 4px 9px; border-radius: 4px; background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(6px); font: 600 11px var(--sans); letter-spacing: .02em; color: var(--ink); cursor: pointer; }
+body.site .callout[data-side='l'] .co-tag { transform: translate(calc(-100% - 6px), -50%); }
+body.site .callout .co-tag em { font-style: normal; font-size: 10.5px; color: var(--c); }
+body.site .callout .co-tag:hover { border-color: var(--c); }
+@media (max-width: 600px) { body.site .callout .co-tag { font-size: 10px; padding: 3px 7px; } }
