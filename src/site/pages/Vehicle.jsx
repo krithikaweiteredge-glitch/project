@@ -11,6 +11,7 @@ import VehicleScene from '../three/VehicleScene';
 import { useGLTF } from '@react-three/drei';
 import { composeLaunch, composeSatellite, DRACO, NASA } from '../three/realmodels';
 import { composeSu30, SU30_URL } from '../three/su30';
+import { composeTejas, TEJAS_URL } from '../three/tejas';
 import Inspector from '../ui/Inspector';
 
 const RANK = { 'NO-GO': 0, NO_GO: 0, CAUTION: 1, UNKNOWN: 2, SAFE: 3, GO: 3 };
@@ -20,6 +21,7 @@ const isFlag = (v) => v === 'NO-GO' || v === 'NO_GO' || v === 'CAUTION';
 export default function Vehicle({ look }) {
   const l = VEHICLES[look] ? look : 'quadcopter';
   if (l === 'fighter_twin_engine') return <Su30Vehicle />;
+  if (l === 'fighter_single_engine') return <TejasVehicle />;
   if (l === 'satellite') return <HubbleVehicle />;
   if (l === 'launch_vehicle') return <LaunchVehicle />;
   return <BuiltVehicle look={look} />;
@@ -33,6 +35,12 @@ function Su30Vehicle() {
   const { scene } = useGLTF(SU30_URL);
   const model = useMemo(() => composeSu30(scene), [scene]);
   return <VehicleView look="fighter_twin_engine" model={model} />;
+}
+
+function TejasVehicle() {
+  const { scene } = useGLTF(TEJAS_URL);
+  const model = useMemo(() => composeTejas(scene), [scene]);
+  return <VehicleView look="fighter_single_engine" model={model} />;
 }
 
 function HubbleVehicle() {
