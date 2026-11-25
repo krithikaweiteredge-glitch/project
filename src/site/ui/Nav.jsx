@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { CATEGORIES, VEHICLES } from '../data';
 import { href } from '../router';
 import { useFleet } from '../useFleet';
 import { toggleTheme, useTheme } from '../theme';
@@ -29,14 +28,14 @@ export function Logo() {
   );
 }
 
-export default function Nav({ page, arg, hidden }) {
+const LINKS = [['home', 'Home'], ['platforms', 'Platforms'], ['about', 'About'], ['contact', 'Contact']];
+
+export default function Nav({ page }) {
   const [menu, setMenu] = useState(false);
   const [solid, setSolid] = useState(false);
-  const [preview, setPreview] = useState(CATEGORIES[0].looks[0]);
   const [away, setAway] = useState(false);          // hidden while scrolling down, back on scroll up
   const last = useRef(0);
   const fleet = useFleet();
-
   useEffect(() => {
     const f = () => {
       const y = window.scrollY;
@@ -47,52 +46,28 @@ export default function Nav({ page, arg, hidden }) {
     f(); window.addEventListener('scroll', f, { passive: true });
     return () => window.removeEventListener('scroll', f);
   }, []);
-  useEffect(() => { setMenu(false); }, [page, arg]);
-  useEffect(() => { document.body.classList.toggle('locked', menu); }, [menu]);
-  if (hidden) return null;
+  useEffect(() => { setMenu(false); }, [page]);
   const live = fleet?.length || 0;
-  const pv = VEHICLES[preview];
-
+  const current = page === 'vehicle' || page === 'fleet' ? 'platforms' : page;
   return (
-    <header className={`nav ${['fleet', 'vehicle'].includes(page) ? 'onmedia' : ''} ${solid && !menu ? 'solid' : ''} ${away && !menu ? 'hide' : ''} ${menu ? 'menu-open' : ''}`}>
+    <header className={`nav ${page === 'vehicle' ? 'onmedia' : ''} ${solid && !menu ? 'solid' : ''} ${away && !menu ? 'hide' : ''} ${menu ? 'menu-open' : ''}`}>
       <div className="nav-row">
         <Logo />
         <nav className="nav-center" aria-label="Main">
-          <a href={href()} className={page === 'home' ? 'on' : ''}>Overview</a>
-          {CATEGORIES.map((c) => <a key={c.id} href={href('fleet', c.id)} className={arg === c.id || (page === 'vehicle' && c.looks.includes(arg)) ? 'on' : ''}>{c.short}</a>)}
+          {LINKS.map(([k, name]) => <a key={k} href={k === 'home' ? href() : href(k)} className={current === k ? 'on' : ''}>{name}</a>)}
         </nav>
         <div className="nav-right">
           <span className="pill pulse" style={{ '--c': live ? 'var(--safe)' : 'var(--mute)' }} title={live ? 'Connected to the IVHM live server' : 'IVHM server not reachable: pages show demo data'}>
             <i />{live ? `${live} live` : 'Demo'}
           </span>
           <ThemeButton />
-          <button className="btn line sm" onClick={() => setMenu((m) => !m)} aria-expanded={menu}>{menu ? 'Close' : 'All platforms'}</button>
+          <a className="btn solid sm nav-cta" href={href('contact')}>Get in touch</a>
           <button className="burger" onClick={() => setMenu((m) => !m)} aria-label="Menu"><span /><span /></button>
         </div>
       </div>
-
-      <div className={`menu ${menu ? 'show' : ''}`}>
+      <div className={`menu simple ${menu ? 'show' : ''}`}>
         <div className="menu-list">
-          {CATEGORIES.map((c, k) => (
-            <div key={c.id} className="menu-cat" onMouseEnter={() => setPreview(c.looks[0])}>
-              <a href={href('fleet', c.id)}><sup>0{k + 1}</sup>{c.name}</a>
-              <div className="menu-items">
-                {c.looks.map((l) => (
-                  <a key={l} href={href('vehicle', l)} onMouseEnter={() => setPreview(l)}>
-                    {VEHICLES[l].name}{fleet?.some((a) => a.look === l) && <span className="live-dot" />}
-                  </a>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="menu-preview">
-          {Object.values(VEHICLES).map((v) => <img key={v.look} src={v.photo} alt="" className={v.look === preview ? 'on' : ''} loading="lazy" />)}
-          <div className="menu-preview-cap">
-            <div className="eyebrow plain">{CATEGORIES.find((c) => c.looks.includes(preview))?.name}</div>
-            <h3>{pv.name}</h3>
-            <p className="serif" style={{ fontSize: 22 }}>{pv.tag}</p>
-          </div>
+          {LINKS.map(([k, name]) => <a key={k} className="menu-link" href={k === 'home' ? href() : href(k)}>{name}</a>)}
         </div>
       </div>
     </header>

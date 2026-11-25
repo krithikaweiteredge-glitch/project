@@ -19,16 +19,15 @@ const RANK = { 'NO-GO': 0, CAUTION: 1, SAFE: 3 };
 
 // the part each class opens up to show its internals during the loop
 export const FOCUS = { helicopter: 'engine_1', fighter_twin_engine: 'engine_1', fighter_single_engine: 'engine', male_uav: 'engine', quadcopter: 'motor_1', hexacopter: 'motor_1' };
-export const LOOP_S = 16;
-/** where the loop is at time t (s): explode/colour progress, and whether the camera is inside a part */
+export const LOOP_S = 14;
+/** where the home loop is at time t (s): assembled -> apart -> judged by health (status dots) -> together */
 export function loopAt(t) {
   const x = t % LOOP_S;
   if (x < 2) return { p: 1, inside: false, label: 'Assembled' };
   if (x < 4.5) return { p: 1 + (x - 2) / 2.5 * 1.3, inside: false, label: 'Taking it apart' };
   if (x < 6) return { p: 2.3 + (x - 4.5) / 1.5 * 0.9, inside: false, label: 'Judged by health' };
-  if (x < 11) return { p: 3.2, inside: true, label: 'Inside the part' };
-  if (x < 13) return { p: 3.2, inside: false, label: 'Judged by health' };
-  if (x < 15.5) return { p: 3.2 - (x - 13) / 2.5 * 2.2, inside: false, label: 'Putting it back together' };
+  if (x < 10.5) return { p: 3.2, inside: false, label: 'Judged by health' };
+  if (x < 13) return { p: 3.2 - (x - 10.5) / 2.5 * 2.2, inside: false, label: 'Putting it back together' };
   return { p: 1, inside: false, label: 'Assembled' };
 }
 
@@ -41,7 +40,7 @@ export function Twin({ look, model, phase, insets: given, focus = null }) {
   const insets = given || own;
   return (
     <VehicleScene model={model} parts={parts} progress={phase} inspect={false} sel={null} hover={hover} insets={insets}
-      onHover={setHover} onSelect={() => { location.hash = href('vehicle', look); }} flagged={flagged} look={look} focus={focus} />
+      onHover={setHover} onSelect={() => { location.hash = href('vehicle', look); }} flagged={flagged} look={look} focus={focus} dots quality="lite" />
   );
 }
 export function BuiltTwin({ look, phase, insets, focus }) {

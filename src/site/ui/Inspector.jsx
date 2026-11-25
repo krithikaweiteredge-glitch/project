@@ -81,7 +81,7 @@ function PartView({ p, aircraft, onClose, look }) {
 
       {rul && (
         <div className="blk">
-          <div className="blk-h"><span>Remaining life</span><span>{Math.round((rul.coverage || 0.9) * 100)}% range</span></div>
+          <div className="blk-h"><span>Remaining life</span><span>{Math.round((rul.coverage || 0.95) * 100)}% range</span></div>
           <div className="life"><b>{nice(rul.mean)}</b><span>{rul.unit}</span></div>
           <div className="life-scale">
             <div className="axis" />

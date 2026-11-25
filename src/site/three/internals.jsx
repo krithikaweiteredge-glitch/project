@@ -252,7 +252,7 @@ function Battery({ c }) {
 }
 Battery.labels = () => [['capacity', 'Cells (capacity)', [-0.75, 0.25, 0.45]], ['resistance', 'Bus bars (resistance)', [0.6, 0.3, -0.45]], ['bms', 'Battery management board', [0, 0.45, 0]]];
 
-function LandingGear({ c }) {
+function LandingGear({ c, twin = false }) {
   const oleo = useRef(), wheel = useRef();
   const strutM = useSub('steel', c('shock strut')), brakeM = useSub('hot', c('brakes')), retM = useSub('cast', c('retraction'));
   const rubber = useMemo(M.rubber, []), alu = useMemo(M.alu, []), cast = useMemo(M.cast, []);
@@ -267,13 +267,15 @@ function LandingGear({ c }) {
       <group ref={oleo}>
         <mesh position={[0, -0.05, 0]} material={strutM}><cylinderGeometry args={[0.065, 0.065, 0.8, 24]} /></mesh>
         <group position={[0, -0.5, 0]} ref={wheel}>
-          {[0.2, -0.2].map((z) => (
+          {/* one wheel, as on the fighter and UAV gear legs: tyre, hub, and the brake stack inside the hub */}
+          {(twin ? [0.24, -0.24] : [0]).map((z) => (
             <group key={z} position={[0, 0, z]}>
-              <mesh rotation={[0, 0, 0]} material={rubber}><torusGeometry args={[0.32, 0.12, 20, 48]} /></mesh>
-              <mesh rotation={[Math.PI / 2, 0, 0]} material={alu}><cylinderGeometry args={[0.24, 0.24, 0.16, 40]} /></mesh>
-              <mesh position={[0, 0, z > 0 ? -0.1 : 0.1]} rotation={[Math.PI / 2, 0, 0]} material={brakeM}><cylinderGeometry args={[0.2, 0.2, 0.03, 40]} /></mesh>
+              <mesh material={rubber}><torusGeometry args={[0.32, 0.12, 20, 48]} /></mesh>
+              <mesh rotation={[Math.PI / 2, 0, 0]} material={alu}><cylinderGeometry args={[0.24, 0.24, 0.2, 40]} /></mesh>
+              <mesh position={[0, 0, z >= 0 ? -0.11 : 0.11]} rotation={[Math.PI / 2, 0, 0]} material={brakeM}><cylinderGeometry args={[0.2, 0.2, 0.03, 40]} /></mesh>
             </group>
           ))}
+          {twin && <mesh rotation={[Math.PI / 2, 0, 0]} material={alu}><cylinderGeometry args={[0.05, 0.05, 0.5, 16]} /></mesh>}
         </group>
       </group>
       <mesh position={[0.28, 0.85, 0]} rotation={[0, 0, -0.6]} material={retM}><cylinderGeometry args={[0.04, 0.04, 0.7, 16]} /></mesh>
@@ -281,7 +283,33 @@ function LandingGear({ c }) {
     </group>
   );
 }
-LandingGear.labels = () => [['shock strut', 'Shock strut (oleo)', [0.12, 0.2, 0]], ['brakes', 'Brake heat sink', [0, -0.45, 0.4]], ['retraction', 'Retraction actuator', [0.5, 1.1, 0]]];
+LandingGear.labels = () => [['shock strut', 'Shock strut (oleo)', [0.12, 0.2, 0]], ['brakes', 'Brake heat sink', [0, -0.5, 0.2]], ['retraction', 'Retraction actuator', [0.5, 1.1, 0]]];
+
+function SkidGear({ c }) {
+  const crossM = useSub('alu', c('cross tubes')), shoeM = useSub('steel', c('skid shoes')), fitM = useSub('cast', c('fittings'));
+  const alu = useMemo(M.alu, []);
+  const geo = useMemo(() => {
+    const V = (x, y, z) => new THREE.Vector3(x, y, z);
+    const skid = (z) => new THREE.TubeGeometry(new THREE.CatmullRomCurve3([V(-1.05, -0.55, z), V(0.75, -0.55, z), V(1.0, -0.5, z), V(1.12, -0.32, z)]), 48, 0.045, 14);
+    const cross = (x) => new THREE.TubeGeometry(new THREE.CatmullRomCurve3([V(x, -0.55, -0.5), V(x, -0.1, -0.46), V(x, 0.22, -0.3), V(x, 0.3, 0), V(x, 0.22, 0.3), V(x, -0.1, 0.46), V(x, -0.55, 0.5)]), 64, 0.05, 14);
+    return { skids: [skid(-0.5), skid(0.5)], cross: [cross(0.45), cross(-0.55)] };
+  }, []);
+  const flex = useRef([]);
+  useFrame(({ clock }) => { const k = 1 + 0.025 * Math.max(0, Math.sin(clock.elapsedTime * 1.4)); flex.current.forEach((g) => g && (g.scale.z = k)); });
+  return (
+    <group>
+      {geo.skids.map((g, i) => <mesh key={i} geometry={g} material={alu} />)}
+      {geo.cross.map((g, i) => <group key={i} ref={(el) => (flex.current[i] = el)}><mesh geometry={g} material={crossM} /></group>)}
+      {[-0.5, 0.5].flatMap((z) => [-0.75, -0.1, 0.55].map((x) => (
+        <mesh key={`${z}${x}`} position={[x, -0.605, z]} material={shoeM}><boxGeometry args={[0.28, 0.02, 0.07]} /></mesh>
+      )))}
+      {[0.45, -0.55].flatMap((x) => [-0.17, 0.17].map((z) => (
+        <RoundedBox key={`${x}${z}`} args={[0.16, 0.08, 0.12]} radius={0.02} position={[x, 0.31, z]} material={fitM} />
+      )))}
+    </group>
+  );
+}
+SkidGear.labels = () => [['cross tubes', 'Cross tubes', [0.45, 0.42, 0.3]], ['skid shoes', 'Skid shoes', [-0.1, -0.7, 0.5]], ['fittings', 'Attachment fittings', [-0.55, 0.45, -0.17]]];
 
 function Actuator({ c }) {
   const rod = useRef();
@@ -436,10 +464,10 @@ export function internalFor(look, id) {
   if (is('esc') || is('inverter')) return { C: Esc };
   if (is('propeller') || is('rotor')) return { C: RotorHead, p: { blades: look === 'male_uav' ? 3 : 2, prop: true } };
   if (is('main_rotor')) return { C: RotorHead, p: { blades: 4 } };
-  if (is('tail_rotor')) return { C: RotorHead, p: { blades: 2 } };
+  if (is('tail_rotor')) return { C: RotorHead, p: { blades: look === 'helicopter' ? 4 : 2 } };
   if (is('battery')) return { C: Battery };
   if (is('avionics')) return { C: Avionics };
-  if (is('landing_gear')) return { C: LandingGear };
+  if (is('landing_gear')) return { C: look === 'helicopter' ? SkidGear : LandingGear, p: { twin: look === 'airliner_narrowbody' } };
   if (is('flight_actuator') || is('actuator')) return { C: Actuator };
   if (id.includes('gearbox')) return { C: Gearbox };
   if (is('drivetrain') || id.includes('bearing')) return { C: Shaft };

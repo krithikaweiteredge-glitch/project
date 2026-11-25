@@ -44,12 +44,12 @@ function rng(seed) {
 }
 const SUB = {
   'Electric motor': ['bearing', 'winding', 'magnets'], Engine: ['compressor', 'turbine', 'oil system'], Battery: ['capacity', 'resistance'],
-  'Hydraulic system': ['pump', 'valve', 'accumulator', 'cooler'], 'Landing gear': ['retraction', 'shock strut', 'brakes'],
+  'Hydraulic system': ['pump', 'valve', 'accumulator', 'cooler'], 'Landing gear': ['retraction', 'shock strut', 'brakes'], 'Skid landing gear': ['cross tubes', 'skid shoes', 'fittings'],
   'Main gearbox': ['gears', 'bearings', 'oil'], Propeller: ['balance', 'blades'], 'Speed controller': ['switches', 'capacitors'],
 };
 
 export function demoPart(look, cid, pick) {
-  const r = rng(look + ':' + cid), info = partInfo(cid), unit = VEHICLES[look]?.unit || 'hours';
+  const r = rng(look + ':' + cid), info = partInfo(cid, look), unit = VEHICLES[look]?.unit || 'hours';
   // one part per vehicle is the interesting one: the picked part shows a developing fault
   let health = 0.72 + r() * 0.26;
   if (pick === 'caution') health = 0.42 + r() * 0.1;
@@ -77,7 +77,7 @@ export function demoPart(look, cid, pick) {
       : [`Within its learned normal (anomaly score ${(8 + r() * 8).toFixed(1)}, watch at 22.4)`, 'No trend in the last 50 runs'];
   return {
     id: cid, name: info.name, live: false, pack: info.pack, maturity: 'Demo', serial: `${cid.toUpperCase().replace(/_/g, '-')}-${Math.floor(1000 + r() * 8999)}`,
-    verdict, health, subparts: subs, rul: { mean: life, lo: Math.round(life * (1 - span)), hi: Math.round(life * (1 + span * 0.8)), unit, coverage: 0.9 },
+    verdict, health, subparts: subs, rul: { mean: life, lo: Math.round(life * (1 - span)), hi: Math.round(life * (1 + span * 0.8)), unit, coverage: 0.95 },
     reason: pick ? `Weakest: ${Object.keys(subs)[0] || info.label.toLowerCase()} (health ${Math.round(health * 100)}%)` : 'Within learned normal',
     evidence, why: pick ? [evidence[0]] : [], sensors,
     plan: [

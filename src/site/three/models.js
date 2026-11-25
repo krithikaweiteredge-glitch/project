@@ -209,32 +209,41 @@ function rotor(b, id, pos, r, blades = 2, axis = 'y', chord = 0.12) {
 function zone(b, id, size, pos) { return b.part(id, rbox(...size), pos, null, 0x9fc2e0, { zone: true, mat: 'glass' }); }
 
 // ---------- vehicles ----------
+/** industrial multirotor in the class of the DJI Matrice 300: matte body, carbon arms, GPS mast, gimbal camera */
 function multirotor(n, ids, o = {}) {
   const b = new Builder(), R = o.arm || 1.0;
   const motor = ids.motor || 'motor', esc = ids.esc || 'esc', prop = ids.prop || 'propeller';
-  // body shell: glossy white with dark visor
-  b.add(rbox(0.66, 0.2, 0.5, 0.09), [0, 0, 0], null, 'paint', 0xf2f3f4);
-  b.add(sph(0.3, 0, Math.PI * 2, 0, Math.PI / 2), [0, 0.09, 0], null, 'paint', 0xf2f3f4).scale.set(1.1, 0.55, 0.85);
-  b.add(rbox(0.06, 0.07, 0.24, 0.02), [0.33, 0.04, 0], null, 'glass', 0x0c0d10);
+  const BODY = 0x30343a, TRIM = 0x1c1f23;
+  b.add(rbox(0.62, 0.2, 0.46, 0.07), [0, 0, 0], null, 'paint', BODY);                          // airframe core
+  b.add(rbox(0.5, 0.07, 0.36, 0.03), [0, 0.13, 0], null, 'paint', TRIM);                        // top deck
+  b.add(cyl(0.012, 0.012, 0.22, false, 16), [-0.12, 0.27, 0], null, 'metal', 0x8e959d);        // GPS mast
+  b.add(cyl(0.07, 0.07, 0.02, false, 32), [-0.12, 0.38, 0], null, 'paint', 0xe6e8eb);           // GPS puck
+  for (const z of [0.13, -0.13]) b.add(rbox(0.05, 0.04, 0.04, 0.01), [0.32, 0.02, z], null, 'glass', 0x0c0d10);  // front obstacle sensors
+  // gimbal camera under the nose
+  b.add(rbox(0.06, 0.12, 0.05, 0.015), [0.22, -0.16, 0], null, 'metal', TRIM);
+  b.add(rbox(0.16, 0.12, 0.14, 0.03), [0.24, -0.27, 0], null, 'paint', 0x3a3e44);
+  b.add(cyl(0.04, 0.04, 0.03, false, 32), [0.33, -0.27, 0], [0, 0, Math.PI / 2], 'glass', 0x0a0c10);
   for (let i = 0; i < n; i++) {
     const a = (o.offset ?? Math.PI / n) + (i * 2 * Math.PI) / n, x = Math.cos(a) * R, z = Math.sin(a) * R, k = i + 1;
-    b.add(cyl(0.032, 0.032, R * 0.92, false, 32), [x / 2, 0.02, z / 2], [0, -a, Math.PI / 2], 'carbon', 0x1a1b1e);
-    // motor: stator base, bell with cooling ring, chrome shaft
-    const m = b.asm(`${motor}_${k}`, [x, 0.09, z]);
-    m(cyl(0.085, 0.095, 0.05), [0, -0.04, 0], null, 0x2a2c30, 'metal');
-    m(cyl(0.09, 0.09, 0.09), [0, 0.02, 0], null, 0x8e959d, 'metal');
-    m(torus(0.09, 0.008), [0, 0.035, 0], [Math.PI / 2, 0, 0], 0xc9a87c, 'metal');
-    m(cyl(0.012, 0.012, 0.08), [0, 0.1, 0], null, 0xe6e9ec, 'chrome');
-    b.part(`${esc}_${k}`, rbox(0.15, 0.04, 0.07, 0.012), [x * 0.48, 0.07, z * 0.48], [0, -a, 0], 0x23262b, { mat: 'metal' });
-    rotor(b, `${prop}_${k}`, [x, 0.2, z], o.prop || 0.42, 2, 'y', 0.16);
+    b.add(rbox(0.08, 0.06, 0.08, 0.015), [x * 0.3, 0.0, z * 0.3], [0, -a, 0], 'metal', TRIM);   // arm hinge
+    b.add(cyl(0.028, 0.028, R * 0.7, false, 32), [x * 0.62, 0.0, z * 0.62], [0, -a, Math.PI / 2], 'carbon', 0x1a1b1e);
+    // motor: stator base, bell with cooling slots, shaft
+    const m = b.asm(`${motor}_${k}`, [x, 0.06, z]);
+    m(cyl(0.075, 0.085, 0.05), [0, -0.04, 0], null, TRIM, 'metal');
+    m(cyl(0.08, 0.08, 0.08), [0, 0.02, 0], null, 0x6b7077, 'metal');
+    for (let j = 0; j < 3; j++) m(torus(0.081, 0.004), [0, -0.005 + j * 0.022, 0], [Math.PI / 2, 0, 0], 0x2a2c30, 'metal');
+    m(cyl(0.012, 0.012, 0.07, false, 16), [0, 0.09, 0], null, 0xd9dde2, 'chrome');
+    b.part(`${esc}_${k}`, rbox(0.12, 0.035, 0.06, 0.01), [x * 0.82, -0.03, z * 0.82], [0, -a, 0], TRIM, { mat: 'metal' });
+    rotor(b, `${prop}_${k}`, [x, 0.17, z], o.prop || 0.46, 2, 'y', 0.12);
   }
+  // intelligent flight batteries slot in on top, side by side
   const nb = o.batteries || 1;
-  for (let j = 0; j < nb; j++) b.part(nb > 1 ? `battery_${j + 1}` : 'battery', rbox(0.4, 0.11, 0.2, 0.03), [0, -0.17 - j * 0.13, 0], null, 0x3b3f46, { mat: 'metal' });
-  b.part('avionics', rbox(0.2, 0.05, 0.14, 0.015), [-0.05, 0.27, 0], null, 0x2b5f4f, { mat: 'metal' });
-  for (const z of [0.24, -0.24]) {
-    b.add(cyl(0.016, 0.016, 0.34, false, 24), [0.18, -0.24, z], [0.3 * Math.sign(z), 0, 0], 'carbon', 0x1a1b1e);
-    b.add(cyl(0.016, 0.016, 0.34, false, 24), [-0.18, -0.24, z], [0.3 * Math.sign(z), 0, 0], 'carbon', 0x1a1b1e);
-    b.add(cyl(0.02, 0.02, 0.86, false, 24), [0, -0.4, z * 1.3], [0, 0, Math.PI / 2], 'paint', 0xf2f3f4);
+  for (let j = 0; j < nb; j++) b.part(nb > 1 ? `battery_${j + 1}` : 'battery', rbox(0.34, 0.09, 0.13, 0.02), [0.02, 0.21, nb > 1 ? (j ? -0.08 : 0.08) : 0], null, 0x4a4f56, { mat: 'paint' });
+  b.part('avionics', rbox(0.2, 0.05, 0.14, 0.015), [-0.05, 0.04, 0], null, 0x1f5a45, { mat: 'metal' });
+  // landing gear: two legs with skids
+  for (const z of [0.2, -0.2]) {
+    b.add(cyl(0.018, 0.018, 0.34, false, 16), [0, -0.27, z], [z > 0 ? -0.25 : 0.25, 0, 0], 'carbon', 0x1a1b1e);
+    b.add(cyl(0.018, 0.018, 0.6, false, 16), [0, -0.43, z * 1.4], [0, 0, Math.PI / 2], 'paint', TRIM);
   }
   return b;
 }
@@ -363,31 +372,65 @@ function maleUav() {
   return b;
 }
 
+/** utility helicopter in the class of the HAL Dhruv (ALH): Army olive, twin turboshafts, four-blade hingeless rotor */
 function helicopter() {
   const b = new Builder();
-  b.part('airframe', fuselageGeo(4.2, 0.95, 0.42, 0.45, 0.9), [0.6, 0, 0], null, 0x1f3550, { mat: 'paint' });
-  const can = b.add(sph(0.9, 0, Math.PI * 2, 0, Math.PI / 2.2), [1.75, 0.0, 0], [0, 0, -1.05], 'glass', 0x0c1218); can.scale.set(1, 1.05, 0.95);
-  b.add(cyl(0.16, 0.26, 4.0), [-3.0, 0.3, 0], [0, 0, Math.PI / 2 + 0.06], 'paint', 0x1f3550);
-  b.add(finGeo(0.9, 0.7, 0.35, 0.35, 0.06), [-4.6, 0.45, 0], null, 'paint', 0x1f3550);
-  b.part('drivetrain', cyl(0.05, 0.05, 4.0, false, 32), [-3.0, 0.62, 0], [0, 0, Math.PI / 2 + 0.06], 0xe6e9ec, { mat: 'chrome' });
-  for (let i = 0; i < 4; i++) b.part(`drive_bearing_${i + 1}`, torus(0.09, 0.03), [-1.6 - i * 0.9, 0.62, 0], [0, Math.PI / 2, 0], 0x8e959d, { mat: 'metal' });
-  b.part('main_gearbox', rbox(0.75, 0.48, 0.62, 0.1), [0.4, 1.05, 0], null, 0x8e959d, { mat: 'metal' });
-  b.add(cyl(0.07, 0.07, 0.6, false, 32), [0.4, 1.5, 0], null, 'chrome', 0xe6e9ec);
-  rotor(b, 'main_rotor', [0.4, 1.82, 0], 4.2, 4, 'y', 0.06);
-  b.part('tail_gearbox', rbox(0.3, 0.3, 0.25, 0.06), [-4.95, 0.62, 0], null, 0x8e959d, { mat: 'metal' });
-  const tr = rotor(b, 'tail_rotor', [-4.95, 0.75, 0.22], 0.7, 2, 'y', 0.12); tr.rotation.x = Math.PI / 2;
-  for (const [k, z] of [[1, 0.42], [2, -0.42]]) {
-    const e = b.asm(`engine_${k}`, [0.0, 0.95, z]);
-    e(cyl(0.2, 0.2, 1.2), null, [0, 0, Math.PI / 2], 0x4c5057, 'metal');
-    e(cyl(0.12, 0.16, 0.3, true), [-0.7, 0.05, 0], [0, 0, Math.PI / 2 + 0.4], 0x2a2c30, 'metal');
+  const OLIVE = 0x4d5733, DARK = 0x2a2e26;
+  // cabin: a lathe that runs from a rounded nose to the root of the tail boom, a little narrower than tall
+  const prof = [];
+  for (let i = 0; i <= 60; i++) {
+    const s = i / 60, x = 3.0 - s * 4.6;                                  // nose at +3.0, boom root at -1.6
+    const r = s < 0.2 ? 1.0 * Math.pow(Math.sin((s / 0.2) * Math.PI / 2), 0.55) : s > 0.7 ? 1.0 - ((s - 0.7) / 0.3) * 0.58 : 1.0;
+    prof.push([Math.max(r, 0.02), x]);
   }
-  const sk = b.asm('landing_gear', [0.6, -1.15, 0]);
-  for (const z of [0.7, -0.7]) {
-    sk(cyl(0.045, 0.045, 3.0, false, 32), [0, 0, z], [0, 0, Math.PI / 2], 0xd9dde2, 'chrome');
-    for (const x of [0.7, -0.7]) sk(cyl(0.035, 0.035, 0.55, false, 24), [x, 0.26, z * 0.85], [z > 0 ? -0.35 : 0.35, 0, 0], 0xd9dde2, 'chrome');
+  const cab = lathe(prof, 96); cab.rotateZ(-Math.PI / 2); cab.rotateX(0); cab.scale(1, 1, 0.82);
+  // the lathe ran along -Y; flip so the nose points +X
+  cab.rotateZ(Math.PI); cab.rotateY(Math.PI);
+  b.part('airframe', cab, [0, 0, 0], null, OLIVE, { mat: 'paint' });
+  // glazing: windscreen, chin windows, cabin windows and the sliding door frame
+  const ws = b.add(sph(0.98, 0, Math.PI * 2, 0, Math.PI / 2.6), [2.05, 0.08, 0], [0, 0, -1.15], 'glass', 0x0b1016); ws.scale.set(1, 1.0, 0.8);
+  for (const z of [0.79, -0.79]) {
+    for (let i = 0; i < 3; i++) b.add(rbox(0.5, 0.42, 0.03, 0.08), [0.9 - i * 0.62, 0.2, z * (1 - i * 0.02)], null, 'glass', 0x0b1016);
+    b.add(rbox(1.5, 0.05, 0.03, 0.01), [0.3, -0.42, z * 1.01], null, 'metal', DARK);            // door rail
   }
-  zone(b, 'avionics', [0.6, 0.4, 0.8], [2.1, -0.1, 0]); zone(b, 'electrical', [0.6, 0.4, 0.8], [1.3, -0.5, 0]);
-  zone(b, 'hydraulics_1', [0.4, 0.3, 0.3], [0.7, 0.75, 0.3]); zone(b, 'hydraulics_2', [0.4, 0.3, 0.3], [0.7, 0.75, -0.3]);
+  // upper deck: engine and transmission fairing with intakes and exhausts
+  b.add(rbox(2.6, 0.5, 1.15, 0.22), [-0.1, 0.98, 0], null, 'paint', OLIVE);
+  for (const z of [0.58, -0.58]) {
+    b.add(rbox(0.5, 0.26, 0.04, 0.06), [0.7, 1.0, z], null, 'metal', DARK);                      // intake grilles
+    b.add(cyl(0.12, 0.14, 0.36, true, 32), [-1.25, 1.05, z * 0.8], [0, 0, Math.PI / 2 - 0.35], 'metal', 0x3a3d42);  // exhausts
+  }
+  // tail boom, rising slightly, with a swept fin and a stabiliser with end plates
+  const boom = cyl(0.16, 0.42, 5.0, false, 48); boom.rotateZ(Math.PI / 2 + 0.05);
+  b.add(boom, [-4.05, 0.42, 0], null, 'paint', OLIVE);
+  b.add(finGeo(1.35, 1.0, 0.55, 0.65, 0.09), [-6.0, 0.58, 0], null, 'paint', OLIVE);
+  const st = wingGeo(0.6, 0.45, 0.75, 0.15, 0.06);
+  b.add(st, [-5.2, 0.5, 0.12], null, 'paint', OLIVE); b.add(mirrorZ(st), [-5.2, 0.5, -0.12], null, 'paint', OLIVE);
+  for (const z of [0.9, -0.9]) b.add(finGeo(0.45, 0.55, 0.4, 0.12, 0.04), [-5.25, 0.32, z], null, 'paint', OLIVE);
+  // drive train along the top of the boom
+  b.part('drivetrain', cyl(0.045, 0.045, 4.6, false, 32), [-3.9, 0.66, 0], [0, 0, Math.PI / 2 + 0.05], 0xd9dde2, { mat: 'chrome' });
+  for (let i = 0; i < 4; i++) b.part(`drive_bearing_${i + 1}`, torus(0.085, 0.028), [-2.2 - i * 1.0, 0.66 + i * 0.05, 0], [0, Math.PI / 2, 0], 0x8e959d, { mat: 'metal' });
+  b.part('main_gearbox', rbox(0.8, 0.5, 0.66, 0.1), [0.15, 1.2, 0], null, 0x8e959d, { mat: 'metal' });
+  b.add(cyl(0.08, 0.1, 0.55, false, 32), [0.15, 1.65, 0], null, 'metal', 0x6b7077);              // rotor mast
+  rotor(b, 'main_rotor', [0.15, 1.95, 0], 4.1, 4, 'y', 0.055);
+  b.part('tail_gearbox', rbox(0.3, 0.3, 0.26, 0.06), [-6.55, 1.62, 0.02], null, 0x8e959d, { mat: 'metal' });
+  const tr = rotor(b, 'tail_rotor', [-6.6, 1.68, 0.26], 0.82, 4, 'y', 0.1); tr.rotation.x = Math.PI / 2;
+  for (const [k, z] of [[1, 0.3], [2, -0.3]]) {
+    const e = b.asm(`engine_${k}`, [-0.2, 1.0, z]);
+    e(cyl(0.18, 0.18, 1.1, false, 40), null, [0, 0, Math.PI / 2], 0x55606b, 'metal');
+    e(cyl(0.1, 0.13, 0.25, true, 32), [-0.62, 0, 0], [0, 0, Math.PI / 2], 0x2a2c30, 'metal');
+  }
+  // skids with curved cross tubes
+  const sk = b.asm('landing_gear', [0.2, -1.2, 0]);
+  for (const z of [0.88, -0.88]) {
+    sk(cyl(0.05, 0.05, 3.3, false, 32), [0, 0, z], [0, 0, Math.PI / 2], DARK, 'paint');
+    sk(cyl(0.05, 0.05, 0.4, false, 24), [1.75, 0.12, z], [0, 0, Math.PI / 2 - 0.55], DARK, 'paint');   // upturned toe
+  }
+  for (const x of [0.9, -0.6]) {
+    const ct = new THREE.TorusGeometry(0.9, 0.04, 12, 48, Math.PI);
+    sk(ct, [x, 0.02, 0], [0, Math.PI / 2, 0], DARK, 'paint');
+  }
+  zone(b, 'avionics', [0.6, 0.4, 0.8], [2.1, -0.15, 0]); zone(b, 'electrical', [0.6, 0.4, 0.8], [1.2, -0.5, 0]);
+  zone(b, 'hydraulics_1', [0.4, 0.3, 0.3], [0.7, 0.85, 0.3]); zone(b, 'hydraulics_2', [0.4, 0.3, 0.3], [0.7, 0.85, -0.3]);
   return b;
 }
 

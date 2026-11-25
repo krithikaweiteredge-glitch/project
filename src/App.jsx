@@ -5,6 +5,9 @@ import Footer from './site/ui/Footer';
 import Home from './site/pages/Home';
 import Category from './site/pages/Category';
 import Credits from './site/pages/Credits';
+import Platforms from './site/pages/Platforms';
+import About from './site/pages/About';
+import Contact from './site/pages/Contact';
 import { SmoothScroll, useLenis } from './site/ui/motion';
 import './site/site.css';
 import './site/premium.css';
@@ -35,6 +38,9 @@ export default function App() {
         {page === 'fleet' ? <Category id={arg} />
           : page === 'vehicle' ? <Suspense fallback={<div className="pageload">Assembling the twin</div>}><Vehicle look={arg} /></Suspense>
           : page === 'credits' ? <Credits />
+          : page === 'platforms' ? <Platforms />
+          : page === 'about' ? <About />
+          : page === 'contact' ? <Contact />
           : <Home />}
       </main>
       {page !== 'vehicle' && <Footer />}

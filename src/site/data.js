@@ -7,6 +7,7 @@ export const CATEGORIES = [
   { id: 'fighters', name: 'Fighter jets', short: 'Fighters', blurb: 'Single- and twin-engine fast jets, judged before every sortie.', looks: ['fighter_single_engine', 'fighter_twin_engine'] },
   { id: 'uav', name: 'UAVs', short: 'UAVs', blurb: 'Medium-altitude long-endurance unmanned aircraft, flying missions measured in days.', looks: ['male_uav'] },
   { id: 'drones', name: 'Drones', short: 'Drones', blurb: 'Industrial multirotors for inspection, survey and heavy lift.', looks: ['quadcopter', 'hexacopter'] },
+  { id: 'airliners', name: 'Airliners', short: 'Airliners', blurb: 'Narrow-body jets flying many cycles a day, where every engine cycle counts.', looks: ['airliner_narrowbody'] },
 ];
 
 export const VEHICLES = {
@@ -14,17 +15,19 @@ export const VEHICLES = {
     text: 'Every motor, speed controller and propeller gets its own live twin. IVHM learns how this drone flies when healthy and spots a worn bearing or a chipped prop within a flight.', unit: 'flights' },
   hexacopter: { name: 'Hexacopter', cat: 'drones', tag: 'Six rotors, twice the redundancy, all of it watched.', examples: 'DJI Matrice · heavy-lift and spraying drones',
     text: 'Heavy-lift multirotors carry expensive payloads. IVHM tracks both battery packs and all six drive chains so you know which arm will let you down first.', unit: 'flights' },
-  male_uav: { name: 'MALE UAV', cat: 'uav', tag: 'Twenty hours aloft. One answer before take-off.', examples: 'MQ-9 Reaper · DRDO TAPAS · Heron class',
+  male_uav: { name: 'MALE UAV', cat: 'uav', tag: 'Twenty hours aloft. One answer before take-off.', examples: 'IAI Heron Mk I · Heron Mk II · Indian Army and IAF',
     text: 'Medium-altitude long-endurance UAVs fly missions measured in days. Engine, propeller, control actuators and avionics are judged after every sortie.', unit: 'sorties' },
-  fighter_single_engine: { name: 'Fighter (single engine)', cat: 'fighters', tag: 'One engine. No margin for guessing.', examples: 'HAL Tejas · F-16 · Gripen',
+  fighter_single_engine: { name: 'Fighter (single engine)', cat: 'fighters', tag: 'One engine. No margin for guessing.', examples: 'HAL Tejas Mk1 · Tejas Mk1A',
     text: 'With one engine there is no second chance. Engine, hydraulics, five flight-control actuators, gear, fuel, ECS, power and avionics are judged before every sortie.', unit: 'sorties' },
-  fighter_twin_engine: { name: 'Fighter (twin engine)', cat: 'fighters', tag: 'Twin engines, twin hydraulics, one verdict.', examples: 'Dassault Rafale · Su-30MKI · F-15',
+  fighter_twin_engine: { name: 'Fighter (twin engine)', cat: 'fighters', tag: 'Twin engines, twin hydraulics, one verdict.', examples: 'Su-30MKI · Dassault Rafale',
     text: 'Twin-engine fast jets add an APU and more actuators. IVHM compares the two engines against each other as well as against their own learned normal.', unit: 'sorties' },
-  helicopter: { name: 'Helicopter', cat: 'helicopters', tag: 'Gearboxes, rotors and shafts that never rest.', examples: 'HAL Dhruv · Airbus H125 · Black Hawk',
+  airliner_narrowbody: { name: 'Narrow-body airliner', cat: 'airliners', tag: 'Two engines, six cycles a day, every one accounted for.', examples: 'Airbus A320 family · Air India · IndiGo · Air India Express',
+    text: 'A320-class twin-jets with CFM56 turbofans. IVHM tracks both engines cycle by cycle against NASA run-to-failure data, along with the gear, APU, flight controls, wing structure, hydraulics, fuel and air conditioning.', unit: 'cycles' },
+  helicopter: { name: 'Helicopter', cat: 'helicopters', tag: 'Gearboxes, rotors and shafts that never rest.', examples: 'HAL Dhruv (Indian Army) · HAL Dhruv (IAF) · Sarang display team',
     text: 'Main and tail gearboxes, the drive shaft and its bearings, both rotors with track-and-balance, two turboshafts. The parts that keep a helicopter in the air are all on the board.', unit: 'flight hours' },
 };
 // clips that do not show the vehicle well (wildfire seen from a drone; a far-off speck): show the photo instead
-const PHOTO_ONLY = ['hexacopter', 'fighter_single_engine', 'quadcopter'];
+const PHOTO_ONLY = ['hexacopter', 'fighter_single_engine', 'quadcopter', 'airliner_narrowbody'];
 for (const [look, v] of Object.entries(VEHICLES)) {
   v.look = look;
   v.media = { ...(MEDIA[look] || {}) };
@@ -88,8 +91,10 @@ const PARTS = [
   ['fuel_pump', P('Fuel pump', 'Pump', ['outlet_pressure', 'flow', 'current'], 'Pressure and flow against speed.')],
   ['generator', P('Generator', 'Electrical power', ['voltage', 'current', 'winding_temp'], 'Winding temperature rise and output quality.')],
 ];
-export function partInfo(id) {
-  const hit = PARTS.find(([p]) => id === p || id.startsWith(p + '_'));
+// helicopters of the Dhruv class land on skids: no wheels, tyres, brakes or retraction
+const SKID = P('Skid landing gear', 'Skid landing gear', ['cross_tube_strain_fwd', 'cross_tube_strain_aft', 'landing_load'], 'Cross-tube strain from hard landings, skid-shoe wear and fitting condition.');
+export function partInfo(id, look) {
+  const hit = look === 'helicopter' && (id === 'landing_gear' || id.startsWith('landing_gear_')) ? ['landing_gear', SKID] : PARTS.find(([p]) => id === p || id.startsWith(p + '_'));
   const n = id.match(/_(\d+)$/)?.[1];
   const base = hit ? hit[1] : P(id.replace(/_/g, ' '), 'General data-only twin', ['sensor_1', 'sensor_2', 'sensor_3'], 'Learns its own normal from its own data.');
   return { ...base, name: base.label + (n ? ` ${n}` : '') };
@@ -126,37 +131,34 @@ export const healthColor = (h, v) => (v === 'NO-GO' || v === 'NO_GO' ? '#f87171'
 // ---------- real photographs of each kind of component (Wikimedia Commons, credited) ----------
 import COMPONENT_PHOTOS from '../data/components.json';
 export { COMPONENT_PHOTOS };
-const ENGINE_BY_LOOK = { airliner_narrowbody: 'turbofan', fighter_single_engine: 'turbofan', fighter_twin_engine: 'turbofan',
-  turboprop_transport: 'turboprop', male_uav: 'piston', helicopter: 'turboshaft' };
-/** the photo key for a part of a given vehicle type (null when there is no good photo of that kind of part) */
+// Which real photograph shows which part. Each photo was checked against the aircraft it appears on:
+// the fighter engine is the GE F404 (Tejas), the helicopter engine the HAL/Turbomeca Shakti (Dhruv), the UAV
+// engine a Rotax 914 piston engine (as on the IAI Heron). Helicopters land on skids, fighters and UAVs on wheels;
+// drones get drone parts (outrunner motor, 4-in-1 ESC, LiPo pack, Pixhawk flight controller). No photo when none is accurate.
+const ENGINE_BY_LOOK = { airliner_narrowbody: 'cfm56', fighter_single_engine: 'f404', fighter_twin_engine: 'f404', helicopter: 'shakti', male_uav: 'piston' };
+const DRONES = ['quadcopter', 'hexacopter'];
+/** the photo key for a part of a given vehicle type (null when there is no accurate photo of that part) */
 export function photoKey(look, id) {
   const is = (p) => id === p || id.startsWith(p + '_');
-  if (is('engine')) return ENGINE_BY_LOOK[look] || 'turbofan';
+  const drone = DRONES.includes(look);
+  if (is('airframe')) return 'airframe';
+  if (is('engine')) return ENGINE_BY_LOOK[look] || null;
+  if (is('apu')) return look === 'airliner_narrowbody' ? 'airliner_apu' : 'apu';
   if (is('motor')) return 'motor';
   if (is('esc') || is('inverter')) return 'esc';
-  if (is('propeller')) return ['turboprop_transport', 'male_uav'].includes(look) ? 'aprop' : 'propeller';
-  if (is('rotor')) return look === 'evtol' ? 'propeller' : 'rotor';
-  if (is('main_rotor') || is('tail_rotor')) return 'rotor';
   if (is('battery')) return 'battery';
-  if (is('avionics') || is('guidance') || is('storage_logger')) return 'avionics';
-  if (is('seeker')) return 'missile';
-  if (is('landing_gear')) return 'gear';
-  if (is('flight_actuator')) return 'aileron';
-  if (is('actuator') || is('control_fin')) return 'actuator';
-  if (id.includes('gearbox')) return 'gearbox';
-  if (is('drivetrain')) return look === 'helicopter' ? 'shaft' : 'gearbox';
+  if (is('propeller')) return drone ? 'propeller' : look === 'male_uav' ? 'uav_prop' : null;
+  if (is('rotor')) return drone ? 'propeller' : null;
+  if (is('main_rotor')) return 'rotor';
+  if (is('tail_rotor')) return 'tail_rotor';
+  if (is('main_gearbox')) return 'gearbox';
+  if (is('tail_gearbox')) return 'tail_gearbox';
+  if (is('landing_gear')) return look === 'helicopter' ? 'skid' : look === 'airliner_narrowbody' ? 'airliner_gear' : 'gear';
+  if (is('avionics')) return drone ? 'fc' : look === 'airliner_narrowbody' ? null : 'avionics';
+  if (is('flight_actuator') || is('actuator')) return 'actuator';
   if (id.includes('bearing')) return 'bearing';
-  if (is('airframe') || is('structure') || is('wing_panel')) return 'airframe';
-  if (is('liquid_engine') || is('nozzle')) return 'rocket_engine';
-  if (is('solid_booster') || is('rocket_motor')) return 'srb';
-  if (is('solar_power')) return 'solar';
-  if (is('reaction_wheel')) return 'reaction_wheel';
-  if (is('thruster')) return 'thruster';
-  if (is('thermal')) return 'mli';
-  if (is('apu')) return 'apu';
-  if (is('compressor')) return 'compressor';
-  if (is('turbine')) return 'turbine';
-  if (is('combustor')) return 'combustor';
-  return null;
+  if (is('electrical')) return 'generator';
+  if (is('ecs')) return 'ecs';
+  return null;   // drivetrain, hydraulics, fuel: no accurate free photo found yet
 }
-export const partPhoto = (look, id) => COMPONENT_PHOTOS[photoKey(look, id)] || null;
+export const partPhoto = (look, id) => { const k = photoKey(look, id); return k === 'airframe' ? VEHICLES[look]?.media?.photo || null : COMPONENT_PHOTOS[k] || null; };

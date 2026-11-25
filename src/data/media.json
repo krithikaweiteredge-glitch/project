@@ -90,13 +90,13 @@
  },
  "helicopter": {
   "photo": {
-   "file": "DRF Eurocopter EC135 Christoph 44 D-HDRK Göttingen 2017 05.jpg",
-   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9a/DRF_Eurocopter_EC135_Christoph_44_D-HDRK_G%C3%B6ttingen_2017_05.jpg/1920px-DRF_Eurocopter_EC135_Christoph_44_D-HDRK_G%C3%B6ttingen_2017_05.jpg",
-   "page": "https://commons.wikimedia.org/wiki/File:DRF_Eurocopter_EC135_Christoph_44_D-HDRK_G%C3%B6ttingen_2017_05.jpg",
-   "w": 4096,
-   "h": 2731,
-   "lic": "CC BY 4.0",
-   "artist": "Julian Herzog (Website)"
+   "file": "Indian Army Dhruv Helicopter at Aero India 2013.JPG",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f1/Indian_Army_Dhruv_Helicopter_at_Aero_India_2013.JPG/1920px-Indian_Army_Dhruv_Helicopter_at_Aero_India_2013.JPG",
+   "page": "https://commons.wikimedia.org/wiki/File:Indian_Army_Dhruv_Helicopter_at_Aero_India_2013.JPG",
+   "w": 3648,
+   "h": 2056,
+   "lic": "CC BY-SA 3.0",
+   "artist": "Pritishp333"
   }
  },
  "airliner_narrowbody": {
@@ -112,13 +112,13 @@
    "res": "720p"
   },
   "photo": {
-   "file": "IndiGo VT-IJB A320neo Mumbai Apr22 R16 05934.jpg",
-   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/IndiGo_VT-IJB_A320neo_Mumbai_Apr22_R16_05934.jpg/1920px-IndiGo_VT-IJB_A320neo_Mumbai_Apr22_R16_05934.jpg",
-   "page": "https://commons.wikimedia.org/wiki/File:IndiGo_VT-IJB_A320neo_Mumbai_Apr22_R16_05934.jpg",
-   "w": 4400,
-   "h": 2475,
-   "lic": "CC BY-SA 4.0",
-   "artist": "This Photo was taken by Timothy A. Gonsalves. Feel free to use my photos, but please menti"
+   "file": "Air India Airbus A320-214; VT-EDE@SIN;02.08.2012 668bd (7917455416).jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5b/Air_India_Airbus_A320-214%3B_VT-EDE%40SIN%3B02.08.2012_668bd_%287917455416%29.jpg/1920px-Air_India_Airbus_A320-214%3B_VT-EDE%40SIN%3B02.08.2012_668bd_%287917455416%29.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Air_India_Airbus_A320-214;_VT-EDE@SIN;02.08.2012_668bd_(7917455416).jpg",
+   "w": 3291,
+   "h": 2203,
+   "lic": "CC BY-SA 2.0",
+   "artist": "Aero Icarus from Zürich, Switzerland"
   }
  },
  "turboprop_transport": {
@@ -178,13 +178,13 @@
    "res": "480p"
   },
   "photo": {
-   "file": "F-16 Demo Team 2722.jpg",
-   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/F-16_Demo_Team_2722.jpg/1920px-F-16_Demo_Team_2722.jpg",
-   "page": "https://commons.wikimedia.org/wiki/File:F-16_Demo_Team_2722.jpg",
-   "w": 4400,
-   "h": 2200,
-   "lic": "Attribution",
-   "artist": "Łukasz Golowanow"
+   "file": "HAL Tejas (LA-5018) of Squadron 18 Flying Bullets.jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6f/HAL_Tejas_%28LA-5018%29_of_Squadron_18_Flying_Bullets.jpg/1920px-HAL_Tejas_%28LA-5018%29_of_Squadron_18_Flying_Bullets.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:HAL_Tejas_(LA-5018)_of_Squadron_18_Flying_Bullets.jpg",
+   "w": 4000,
+   "h": 2668,
+   "lic": "GODL-India",
+   "artist": "Ministry of Defence"
   }
  },
  "fighter_twin_engine": {
@@ -200,14 +200,13 @@
    "res": "480p"
   },
   "photo": {
-   "article": "Dassault Rafale",
-   "file": "Rafale_-_RIAT_2009_(3751416421).jpg",
-   "lic": "CC BY-SA 2.0",
-   "artist": "Tim Felce (Airwolfhound)",
-   "page": "https://commons.wikimedia.org/wiki/File:Rafale_-_RIAT_2009_(3751416421).jpg",
-   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/64/Rafale_-_RIAT_2009_%283751416421%29.jpg/1920px-Rafale_-_RIAT_2009_%283751416421%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-   "w": 2048,
-   "h": 1365
+   "file": "Su-30MKI.jpg",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8f/Su-30MKI.jpg/1920px-Su-30MKI.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Su-30MKI.jpg",
+   "w": 7000,
+   "h": 5600,
+   "lic": "CC BY 4.0",
+   "artist": "Sanil Nath"
   }
  },
  "missile_round": {
@@ -279,14 +278,13 @@
  },
  "male_uav": {
   "photo": {
-   "article": "General Atomics MQ-9 Reaper",
-   "file": "MQ-9_Reaper_UAV_(cropped).jpg",
+   "file": "IAI Heron 1 in flight 2.JPEG",
+   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/af/IAI_Heron_1_in_flight_2.JPEG/1920px-IAI_Heron_1_in_flight_2.JPEG",
+   "page": "https://commons.wikimedia.org/wiki/File:IAI_Heron_1_in_flight_2.JPEG",
+   "w": 2296,
+   "h": 1224,
    "lic": "Public domain",
-   "artist": "Lt. Col. Leslie Pratt",
-   "page": "https://commons.wikimedia.org/wiki/File:MQ-9_Reaper_UAV_(cropped).jpg",
-   "thumb": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/12/MQ-9_Reaper_UAV_%28cropped%29.jpg/1920px-MQ-9_Reaper_UAV_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-   "w": 3022,
-   "h": 1986
+   "artist": "SSGT REYNALDO RAMON, USAF"
   }
  },
  "_hero": [

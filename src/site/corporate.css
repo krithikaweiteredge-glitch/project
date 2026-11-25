@@ -99,3 +99,84 @@ body.site .hero3d-tag { position: absolute; right: var(--pad); bottom: 28px; z-i
 body.site .int-tag { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; padding: 5px 9px; border-radius: 4px; background: var(--glass); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); backdrop-filter: blur(8px); font: 600 11px var(--sans); color: var(--ink); transform: translate(8px, -50%); }
 body.site .int-tag i { width: 6px; height: 6px; border-radius: 50%; background: var(--c); box-shadow: 0 0 8px var(--c); }
 body.site .int-tag b { color: var(--c); font-weight: 600; }
+
+/* ======================= performance ======================= */
+body.site::after { display: none !important; }            /* animated full-screen grain: repainted every frame */
+
+/* ======================= simple navigation ======================= */
+body.site .nav-center a { font-size: 13px !important; letter-spacing: .02em !important; text-transform: none !important; font-weight: 500 !important; }
+body.site .nav-cta { margin-left: 4px; }
+body.site .menu.simple { grid-template-columns: 1fr; }
+body.site .menu.simple .menu-list { display: flex; flex-direction: column; gap: 6px; padding-top: 110px; }
+body.site .menu-link { font: 600 clamp(34px, 6vw, 56px)/1.15 var(--sans); letter-spacing: -.03em; color: var(--ink); padding: 8px 0; border-bottom: 1px solid var(--line); }
+@media (max-width: 760px) { body.site .nav-cta { display: none; } }
+
+/* ======================= pages ======================= */
+body.site .page { padding: 140px var(--pad) 80px; }
+body.site .page-head { max-width: 900px; margin-bottom: 56px; }
+body.site .page-head .pro-h { margin-top: 18px; }
+body.site .page-head .pro-body { margin-top: 20px; }
+body.site .page .ex-tabs { margin-bottom: 10px; }
+body.site .plat-cat { padding: 44px 0 30px; border-bottom: 1px solid var(--line); }
+body.site .plat-cat-head { display: flex; justify-content: space-between; align-items: baseline; gap: 30px; margin-bottom: 26px; }
+body.site .plat-cat-head h2 { font-size: clamp(28px, 3vw, 44px) !important; }
+body.site .plat-cat-head p { color: var(--ink2); max-width: 520px; font-size: 15px; line-height: 1.6; }
+body.site .ex-img { position: relative; }
+body.site .ex-live { position: absolute; top: 14px; left: 14px; background: rgba(0,0,0,.6); }
+body.site .about .pro-sec { padding-left: 0; padding-right: 0; }
+body.site .contact-form { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 22px; max-width: 900px; }
+body.site .contact-form label { display: flex; flex-direction: column; gap: 8px; }
+body.site .contact-form label span { font: 600 11px var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--mute); }
+body.site .contact-form input, body.site .contact-form select, body.site .contact-form textarea { font: 400 15px var(--sans); color: var(--ink); background: var(--bg1); border: 1px solid var(--line2); border-radius: 6px; padding: 13px 14px; outline: none; transition: border-color .3s; resize: vertical; }
+body.site .contact-form input:focus, body.site .contact-form select:focus, body.site .contact-form textarea:focus { border-color: var(--ink); }
+body.site .contact-form .wide { grid-column: 1 / -1; }
+body.site .contact-foot { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+@media (max-width: 760px) { body.site .contact-form { grid-template-columns: 1fr; } body.site .plat-cat-head { flex-direction: column; } }
+
+/* hero legend */
+body.site .hero3d-legend { position: absolute; right: var(--pad); bottom: 56px; z-index: 2; display: flex; gap: 16px; font: 600 10px var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--ink2); }
+body.site .hero3d-legend span { display: inline-flex; align-items: center; gap: 7px; }
+body.site .hero3d-legend span::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--c); box-shadow: 0 0 10px var(--c); }
+
+/* ======================= vehicle page: photo, then the inspector ======================= */
+body.site .vhero { position: relative; height: 82svh; min-height: 560px; overflow: hidden; display: flex; align-items: flex-end; background: #000; color: #f5f5f7;
+  --ink: #f5f5f7; --ink2: #d7d7dc; --mute: #b0b0b8; --line2: rgba(255,255,255,.3); --bg: #0e0e12; }
+body.site .vhero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: push 14s linear both; }
+body.site .vhero-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.5) 0%, rgba(0,0,0,.05) 30%, rgba(0,0,0,.8) 100%); }
+body.site .vhero-copy { position: relative; z-index: 2; padding: 0 var(--pad) 56px; max-width: 900px; }
+body.site .vhero-copy h1 { font-size: clamp(48px, 7vw, 112px) !important; margin-top: 16px; animation: fadeup 1s var(--ease) both; }
+body.site .vhero-tag { font: 500 clamp(18px, 1.6vw, 24px) var(--sans); margin-top: 14px; color: #f5f5f7; }
+body.site .vhero-text { font: 400 15.5px/1.65 var(--sans); color: #d7d7dc; margin-top: 12px; max-width: 640px; }
+body.site .vhero .tally { justify-content: flex-start; margin: 22px 0 26px; }
+body.site .vhero .btn.solid { background: #f5f5f7; color: #0e0e12; }
+body.site .vhero .btn.line:hover { color: #0e0e12; }
+body.site .vhero-credit { position: absolute; right: var(--pad); bottom: 16px; z-index: 2; font: 400 10px var(--sans); color: rgba(255,255,255,.55); }
+
+body.site .inspx { padding: 26px var(--pad) 60px; background: var(--bg); scroll-margin-top: 70px; }
+body.site .inspx-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0 18px; }
+body.site .inspx-top .insp-title b { font-size: 22px !important; }
+body.site .inspx-top .insp-title span { font: 500 12px var(--sans); color: var(--mute); }
+body.site .inspx-grid { display: grid; grid-template-columns: 280px 1fr 380px; gap: 14px; height: min(78svh, 820px); min-height: 560px; }
+body.site .inspx .systems, body.site .inspx .inspector { position: relative !important; inset: auto !important; left: auto; right: auto; top: auto; bottom: auto; width: auto !important; height: 100%; transform: none !important; border-radius: 10px; }
+body.site .inspx-stage { position: relative; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--stage); }
+body.site .inspx-stage canvas { position: absolute !important; inset: 0; }
+body.site .inspx .switcher { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); }
+body.site .inspx .switcher .cur { min-width: 230px; }
+body.site .tools { position: absolute; top: 12px; right: 12px; display: flex; gap: 6px; }
+body.site .tools button { min-width: 38px; height: 38px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line2); background: var(--glass); backdrop-filter: blur(10px); font: 600 15px var(--sans); color: var(--ink); transition: background .25s; }
+body.site .tools button:hover { background: color-mix(in srgb, var(--ink) 10%, transparent); }
+body.site .tools button.on { background: var(--ink); color: var(--bg); }
+body.site .tools button:last-child { font-size: 12px; letter-spacing: .06em; }
+body.site .stage-legend { position: absolute; top: 18px; left: 16px; display: flex; gap: 14px; font: 600 10px var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--ink2); pointer-events: none; }
+body.site .stage-legend span { display: inline-flex; align-items: center; gap: 6px; }
+body.site .stage-legend span::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--c); box-shadow: 0 0 8px var(--c); }
+@media (max-width: 1180px) { body.site .inspx-grid { grid-template-columns: 240px 1fr 330px; } }
+@media (max-width: 980px) {
+  body.site .inspx-grid { grid-template-columns: 1fr; height: auto; }
+  body.site .inspx-stage { height: 60svh; min-height: 380px; order: 1; }
+  body.site .inspx .systems { order: 2; height: auto; max-height: none; }
+  body.site .inspx .inspector { order: 3; height: auto; max-height: 75svh; }
+  body.site .inspx-top { flex-direction: column; align-items: flex-start; }
+  body.site .inspx .systems-head { display: block !important; }
+}
+body.site .stage-legend { top: auto; bottom: 86px; left: 16px; }

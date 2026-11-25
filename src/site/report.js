@@ -89,7 +89,7 @@ export async function buildReport({ vehicle, aircraft, parts, order, overall, co
   doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(...INK); doc.text('All monitored parts', M, y);
   doc.autoTable({
     startY: y + 3, margin: { left: M, right: M, bottom: 18 },
-    head: [['Part', 'System', 'Health', 'Verdict', 'Remaining life (90% range)', 'Next action', 'Data']],
+    head: [['Part', 'System', 'Health', 'Verdict', 'Remaining life (95% range)', 'Next action', 'Data']],
     body: order.map((k) => {
       const p = parts[k], r = p.rul, next = p.plan?.[0];
       return [ascii(p.name), groupOf(k), pct(p.health), verdictOf(p.verdict).word, r ? ascii(`${n(r.mean)} ${r.unit} (${n(r.lo)}-${n(r.hi)})`) : '-', ascii(next ? `${next.what} - ${next.urgency}` : '-'), p.live ? 'Live' : 'Demo'];
@@ -123,7 +123,7 @@ export async function buildReport({ vehicle, aircraft, parts, order, overall, co
     doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...MUTE);
     doc.text(ascii(`${p.pack}  |  S/N ${p.serial}  |  ${p.live ? 'live data' : 'demo data'}`), M + 5, y + 10);
     let yy = y + 16;
-    if (p.rul) { doc.setFontSize(8.5); doc.setTextColor(...INK); doc.text(ascii(`Remaining life: ${n(p.rul.mean)} ${p.rul.unit}  (90% range ${n(p.rul.lo)} - ${n(p.rul.hi)})`), M + 5, yy); yy += 5; }
+    if (p.rul) { doc.setFontSize(8.5); doc.setTextColor(...INK); doc.text(ascii(`Remaining life: ${n(p.rul.mean)} ${p.rul.unit}  (95% range ${n(p.rul.lo)} - ${n(p.rul.hi)})`), M + 5, yy); yy += 5; }
     if (p.reason) { doc.setFontSize(8.5); doc.text(ascii(p.reason), M + 5, yy); yy += 5; }
     const block = (title, lines) => {
       if (!lines.length) return;

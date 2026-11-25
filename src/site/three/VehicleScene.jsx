@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
-import { ContactShadows, Environment, Html, Lightformer, MeshReflectorMaterial, OrbitControls } from '@react-three/drei';
-import { Bloom, EffectComposer, N8AO, ToneMapping, Vignette } from '@react-three/postprocessing';
+import { ContactShadows, Environment, Html, Lightformer, OrbitControls } from '@react-three/drei';
+import { Bloom, EffectComposer, ToneMapping } from '@react-three/postprocessing';
 import { ToneMappingMode } from 'postprocessing';
 import { healthColor } from '../data';
 import { TEXTURES } from './models';
@@ -53,8 +53,8 @@ function prepare(model) {
     const out = comp ? dir.multiplyScalar(radius * 0.3).add(d.clone().multiplyScalar(0.42)).add(new THREE.Vector3(0, radius * 0.07, 0)) : d.clone().multiplyScalar(0.1);
     pieces.push({ obj: child, home: child.position.clone(), out, comp });
     if (comp) {
-      const e = (comps[comp] ??= { box: new THREE.Box3() });
-      e.box.union(b.clone().translate(out));
+      const e = (comps[comp] ??= { box: new THREE.Box3(), home: new THREE.Box3() });
+      e.box.union(b.clone().translate(out)); e.home.union(b);
     }
     child.traverse((o) => {
       if (!o.isMesh) return;
@@ -69,35 +69,56 @@ function prepare(model) {
       o.userData.baseColor = base;
       o.userData.baseOpacity = old.opacity;
       o.userData.body = body;
+      if (zone) { o.visible = false; o.userData.hiddenZone = true; }   // systems inside the airframe show as a status dot, not a box
       if (!o.userData.keep) old.dispose();
     });
   }
   const parts = Object.fromEntries(Object.entries(comps).map(([k, e]) => {
     const c = e.box.getCenter(new THREE.Vector3()), s = e.box.getSize(new THREE.Vector3()).length() / 2;
-    return [k, { centre: c, radius: Math.max(s, radius * 0.06) }];
+    return [k, { centre: c, home: e.home.getCenter(new THREE.Vector3()), radius: Math.max(s, radius * 0.06) }];
   }));
   const exploded = pieces.reduce((r, p) => Math.max(r, new THREE.Box3().setFromObject(p.obj).getCenter(new THREE.Vector3()).add(p.out).sub(centre).length()), radius);
-  return { pieces, centre, radius, exploded, parts, floor: box.min.y };
+  // x-ray outlines: crisp edge lines for the shell, so the see-through airframe still reads as an aircraft
+  const edgeMat = new THREE.LineBasicMaterial({ color: '#8fb3d9', transparent: true, opacity: 0, depthWrite: false });
+  const edges = [];
+  for (const pc of pieces) pc.obj.traverse((o) => {
+    if (!o.isMesh || o.userData.hiddenZone || !(o.userData.body || o.userData.component === 'airframe')) return;
+    const pos = o.geometry.attributes.position;
+    if (!pos || pos.count > 60000) return;
+    const line = new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 28), edgeMat);
+    line.raycast = () => {};
+    line.userData.edge = true;
+    o.add(line); edges.push(line);
+  });
+  return { pieces, centre, radius, exploded, parts, floor: box.min.y, edgeMat };
 }
 
-const tmp = new THREE.Color(), tmpV = new THREE.Vector3(), white = new THREE.Color('#ffffff');
+const tmp = new THREE.Color(), tmpV = new THREE.Vector3(), white = new THREE.Color('#ffffff'), XRAY = new THREE.Color('#b9cde0');
 
 /**
  * The detailed internal cutaway of one part, grown in place of the part's simple shape.
  * Sub-parts take the health colour of the matching sub-part health; labels name each internal piece.
  */
-function Internal({ look, id, part, at, r }) {
-  const grp = useRef();
+function Internal({ look, id, part, at, r, floor }) {
+  const grp = useRef(), inner = useRef(), low = useRef(null);
   const entry = useMemo(() => internalFor(look, id), [look, id]);
   const { C, p = {} } = entry;
   const subs = part?.subparts || {};
   const colour = (k) => (subs[k] != null ? healthColor(subs[k]) : null);
   const labels = useMemo(() => internalLabels(entry), [entry]);
   const k = (r * 3.6) / 2.2;                          // the internal models are ~2.2 units long; show it larger than the part
-  useFrame(() => { if (grp.current) grp.current.scale.lerp(tmpS.setScalar(k), 0.08); });
+  useFrame(() => {
+    const g = grp.current; if (!g) return;
+    g.scale.lerp(tmpS.setScalar(k), 0.08);
+    // the lowest point of the cutaway, in its own units, measured once
+    if (low.current == null && inner.current) { g.updateMatrixWorld(true); low.current = (tmpB.setFromObject(inner.current).min.y - g.position.y) / g.scale.y; }
+    // lift it so it never sinks into the floor
+    const bottom = at.y + (low.current ?? 0) * g.scale.y;
+    g.position.y = at.y + (floor != null && bottom < floor ? floor - bottom : 0);
+  });
   return (
     <group ref={grp} position={at} scale={0.001}>
-      <C c={colour} {...p} />
+      <group ref={inner}><C c={colour} {...p} /></group>
       {labels.map(([key, name, pos]) => {
         const h = subs[key];
         return (
@@ -111,16 +132,78 @@ function Internal({ look, id, part, at, r }) {
     </group>
   );
 }
-const tmpS = new THREE.Vector3();
+const tmpS = new THREE.Vector3(), tmpB = new THREE.Box3();
 
-export default function VehicleScene({ model, parts, progress, inspect, sel, hover, onHover, onSelect, flagged, insets, look, focus = null }) {
+/** where a part is now: between its assembled and its exploded centre */
+const partAt = (pp, e, out) => out.copy(pp.home).lerp(pp.centre, e);
+
+/**
+ * Status dots: one per monitored part, green / amber / red by its verdict, with a soft pulsing halo.
+ * They are also how the systems without a shape of their own (avionics, fuel, hydraulics...) are clicked.
+ */
+function Dots({ prep, parts, eRef, showRef, hidden, onSelect, onHover }) {
+  const R = prep.radius;
+  const ids = Object.keys(prep.parts);
+  const refs = useRef({});
+  const mats = useMemo(() => Object.fromEntries(ids.map((id) => {
+    const col = new THREE.Color(parts[id] ? healthColor(parts[id].health, parts[id].verdict) : '#94a3b8');
+    return [id, {
+      core: new THREE.MeshBasicMaterial({ color: col.clone().multiplyScalar(2.2), toneMapped: false, transparent: true, depthTest: false }),
+      halo: new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.25, depthWrite: false, depthTest: false }),
+    }];
+  })), [ids.join(), parts]);
+  const v = new THREE.Vector3();
+  useFrame(({ camera }) => {
+    const on = showRef.current;
+    for (const id of ids) {
+      const g = refs.current[id]; if (!g) continue;
+      partAt(prep.parts[id], eRef.current, g.position);
+      const vis = on > 0.02 && !hidden;   // a part is open: no dots in the way
+      g.visible = vis;
+      if (!vis) continue;
+      const m = mats[id]; m.core.opacity = on; m.halo.opacity = on * 0.16;   // steady: no pulsing
+      // the same size on screen at any zoom, so a dot is always easy to see and to click
+      const s = THREE.MathUtils.clamp(camera.position.distanceTo(g.getWorldPosition(v)) * 0.011, R * 0.006, R * 0.03);
+      g.scale.setScalar(s);
+    }
+  });
+  const sphere = useMemo(() => new THREE.SphereGeometry(1, 20, 14), []);
+  const hit = useMemo(() => new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, colorWrite: false }), []);   // a larger, invisible click target
+  return (
+    <group renderOrder={10}>
+      {ids.map((id) => (
+        <group key={id} ref={(el) => (refs.current[id] = el)}
+          onClick={(ev) => { ev.stopPropagation(); onSelect(id); }}
+          onPointerOver={(ev) => { ev.stopPropagation(); onHover(id); document.body.style.cursor = 'pointer'; }}
+          onPointerOut={() => { onHover(null); document.body.style.cursor = ''; }}>
+          <mesh geometry={sphere} material={mats[id].core} scale={0.5} renderOrder={11} userData={{ component: id, dot: true }} />
+          <mesh geometry={sphere} material={mats[id].halo} scale={0.95} renderOrder={10} userData={{ component: id, dot: true }} />
+          <mesh geometry={sphere} material={hit} scale={1.8} userData={{ component: id, dot: true }} />
+        </group>
+      ))}
+    </group>
+  );
+}
+
+/**
+ * The 3D twin.
+ *  inspect  - the interactive inspector: see-through airframe, components highlighted, dots, click to select
+ *  explode  - ref: true to take the aircraft apart (inspector toggle); outside the inspector `progress` drives it
+ *  dots     - show status dots once the parts are coloured (home page)
+ *  cmd      - ref: { zoom: factor, reset: bool } from the zoom buttons
+ *  quality  - 'lite' for the home page (fast), 'full' for the inspector
+ */
+export default function VehicleScene({ model, parts, progress, inspect, sel, hover, onHover, onSelect, flagged, insets, look,
+  focus = null, dots = false, explode, cmd, quality = 'full' }) {
   const prep = useMemo(() => prepare(model), [model]);
   const light = useTheme() === 'light';
   const BG = light ? '#e9e9ed' : '#0e0e12';
+  const lite = quality === 'lite';
   const spin = useRef();
   const controls = useRef();
   const { camera, size } = useThree();
   const focusN = useRef(0);                 // frames left in the current camera move
+  const eRef = useRef(0), showRef = useRef(0);
   const R = prep.radius;
 
   useEffect(() => {
@@ -134,10 +217,19 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
   const off = useRef({ x: 0, y: 0 });
   useFrame((state, dt) => {
     const t = state.clock.elapsedTime;
-    const p = inspect ? 3.2 : progress.current, e = explodeAt(p), c = colourAt(p);
-    // the machine turns slowly with the scroll; in the inspector it settles at a three-quarter view
+    let e, c;
+    if (inspect) {                               // the inspector: assembled unless the user takes it apart; always coloured
+      e = THREE.MathUtils.lerp(eRef.current, explode?.current ? 1 : 0, 0.06); c = 1;
+    } else {
+      const p = progress.current; e = explodeAt(p); c = colourAt(p);
+    }
+    eRef.current = e;
+    const only = inspect && !!explode?.current;   // exploded in the inspector: components only, no shell
+    prep.edgeMat.opacity = THREE.MathUtils.lerp(prep.edgeMat.opacity, inspect && !only && !show ? (light ? 0.5 : 0.38) : 0, 0.1);
+    prep.edgeMat.color.set(light ? '#3d5f86' : '#8fb3d9'); prep.edgeMat.visible = prep.edgeMat.opacity > 0.01;
+    showRef.current = THREE.MathUtils.lerp(showRef.current, inspect ? 1 : dots ? c : 0, 0.1);
     if (spin.current) {
-      const want = inspect ? 0.55 : -0.35 + p * 0.55 + Math.sin(t * 0.15) * 0.05;
+      const want = inspect ? 0.55 : -0.35 + (progress.current ?? 1) * 0.55 + Math.sin(t * 0.15) * 0.05;
       spin.current.rotation.y = THREE.MathUtils.lerp(spin.current.rotation.y, want, inspect ? 0.05 : 1);
     }
     model.spinners.forEach((s) => { s.rotation.y += dt * (11 - 9 * e); });
@@ -145,76 +237,81 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
     for (const pc of prep.pieces) {
       pc.obj.position.copy(pc.home).addScaledVector(pc.out, e);
       pc.obj.traverse((o) => {
-        if (!o.isMesh) return;
+        if (!o.isMesh || o.userData.hiddenZone) return;   // (edge lines are LineSegments, not meshes)
         const m = o.material, id = o.userData.component;
         if (o.userData.body) {
-          m.opacity = (1 - 0.9 * e) * (show ? 0.4 : 1); m.depthWrite = m.opacity > 0.6;
-          if (o.userData.keep) { const want = m.opacity < 0.98 || !!o.userData.origTransparent; if (m.transparent !== want) { m.transparent = want; m.needsUpdate = true; } }
+          // the airframe: solid on the home page, a ghost in the inspector so the components inside show
+          m.opacity = THREE.MathUtils.lerp(m.opacity, inspect ? (only || show ? 0 : 0.06) : (1 - 0.9 * e) * (show ? 0.4 : 1), 0.12);
+          if (inspect) m.color.lerp(XRAY, 0.2);
+          m.depthWrite = m.opacity > 0.6;
+          o.visible = !inspect || m.opacity > 0.01;
+          if (o.userData.keep || inspect) { const want = m.opacity < 0.98 || !!o.userData.origTransparent; if (m.transparent !== want) { m.transparent = want; m.needsUpdate = true; } }
           return;
         }
         const d = parts[id];
         const hc = d ? healthColor(d.health, d.verdict) : '#94a3b8';
         const isSel = id === sel, isHover = id === hover, isFlag = flagged.includes(id), isShown = id === show && !!look;
-        // realistic metal by default; the health colour comes in as a tint and a soft glow
-        m.color.copy(o.userData.baseColor).lerp(tmp.set(hc), c * (o.userData.keep ? 0.12 : isSel ? 0.45 : 0.3));
+        // the airframe skin of a real model is a component too: in the inspector it is the ghost
+        const skin = inspect && id === 'airframe' && !isSel;   // the airframe is the see-through shell in the inspector
+        if (skin) m.color.copy(o.userData.baseColor).lerp(XRAY, 0.85);
+        else m.color.copy(o.userData.baseColor).lerp(tmp.set(hc), c * (o.userData.keep ? 0.12 : isSel ? 0.35 : inspect ? 0.22 : 0.3));
         m.emissive.set(hc);
-        m.emissiveIntensity = isSel ? 0.55 + 0.25 * Math.sin(t * 4) : isHover ? 0.45 : isFlag ? c * (0.25 + 0.15 * Math.sin(t * 2.5)) : c * 0.06;
+        m.emissiveIntensity = skin ? 0 : isSel ? 0.45 : isHover ? 0.35 : isFlag ? c * 0.25 : c * (inspect ? 0.08 : 0.05);
         const ghost = show && id !== show && !isHover;
-        const baseOp = o.userData.zone ? Math.max(o.userData.baseOpacity, 0.3 + 0.35 * c) : 1;
-        // the opened part hands over to its internal cutaway; the others step back
-        m.opacity = THREE.MathUtils.lerp(m.opacity, isShown ? 0 : ghost ? 0.1 : baseOp, 0.15);
+        m.opacity = THREE.MathUtils.lerp(m.opacity, isShown || (skin && (only || show)) ? 0 : skin ? 0.06 : ghost ? (inspect ? 0 : 0.12) : 1, inspect && ghost ? 0.25 : 0.15);
         o.visible = m.opacity > 0.02;
-        m.depthWrite = m.opacity > 0.6 && !o.userData.zone;
-        if (o.userData.keep) {
-          const want = m.opacity < 0.98 || !!o.userData.origTransparent;
-          if (m.transparent !== want) { m.transparent = want; m.needsUpdate = true; }
-        }
+        m.depthWrite = m.opacity > 0.6;
+        const want = m.opacity < 0.98 || !!o.userData.origTransparent;
+        if (m.transparent !== want) { m.transparent = want; m.needsUpdate = true; }
         if (ghost) m.color.lerp(white, 0.4);
       });
     }
 
-    // camera: frame the whole machine, or fly to the selected part
+    // camera: frame the whole machine, or fly to the selected part; zoom buttons and reset
     const ctl = controls.current;
     if (ctl) {
       const wantTarget = tmpV.copy(prep.centre);
       let wantDist = R * (3.15 + (prep.exploded / R - 1) * 1.55 * e) * (insets.current.zoom || 1);
       if (show && prep.parts[show]) {
-        model.group.localToWorld(wantTarget.copy(prep.parts[show].centre));
+        model.group.localToWorld(partAt(prep.parts[show], e, wantTarget));
         wantDist = THREE.MathUtils.clamp(prep.parts[show].radius * (look ? (inspect ? 9 : 6.2) : 9), R * 0.35, R * 2.8);
       }
+      if (cmd?.current?.reset) { focusN.current = 110; cmd.current.reset = false; }
       const easing = focusN.current > 0; if (easing) focusN.current -= 1;
       ctl.target.lerp(wantTarget, inspect ? 0.14 : focus ? 0.06 : 0.2);
       const dir = camera.position.clone().sub(ctl.target);
       if (!inspect || easing) camera.position.copy(ctl.target).add(dir.setLength(THREE.MathUtils.lerp(dir.length(), wantDist, focus ? 0.05 : 0.11)));
+      else if (cmd?.current && cmd.current.zoom !== 1) {
+        const z = cmd.current.zoom; cmd.current.zoom = 1;
+        camera.position.copy(ctl.target).add(dir.multiplyScalar(z));
+      }
       ctl.update();
     }
-    // keep the machine centred in the space the panels leave free
     const ins = insets.current;
-    const nudge = focus && !inspect && ins.x < 0 ? -size.width * 0.05 : 0;   // a close-up sits a little further from the hero text
-    off.current.x = THREE.MathUtils.lerp(off.current.x, ins.x + nudge, 0.08);
+    off.current.x = THREE.MathUtils.lerp(off.current.x, ins.x, 0.08);
     off.current.y = THREE.MathUtils.lerp(off.current.y, ins.y, 0.08);
     camera.setViewOffset(size.width, size.height, off.current.x, off.current.y, size.width, size.height);
   });
 
-  const pick = (ev) => ev.intersections.find((h) => h.object.userData.component && !h.object.userData.body && h.object.material.opacity > 0.2)?.object.userData.component || null;
+  const pick = (ev) => ev.intersections.find((h) => h.object.userData.dot && h.object.parent?.visible)?.object.userData.component   // a dot wins, even behind the shell
+    ?? (ev.intersections.find((h) => h.object.userData.component && !h.object.userData.body && !h.object.userData.hiddenZone
+    && h.object.visible && h.object.material.opacity > 0.2 && !(inspect && h.object.userData.component === 'airframe'))?.object.userData.component || null);
   const selInfo = sel && parts[sel], hovInfo = hover && hover !== sel && parts[hover];
-  const at = (id) => prep.parts[id]?.centre;
+  const posOf = (id) => prep.parts[id] && partAt(prep.parts[id], inspect ? (explode?.current ? 1 : 0) : 1, new THREE.Vector3());
 
   return (
     <>
       <color attach="background" args={[BG]} />
       <fog attach="fog" args={[BG, R * (light ? 10 : 6), R * (light ? 28 : 16)]} />
-      <ambientLight intensity={0.25} />
-      <directionalLight position={[R * 2, R * 4, R * 2]} intensity={2.4} color="#fff4e6" castShadow
-        shadow-mapSize={[4096, 4096]} shadow-bias={-0.0002} shadow-normalBias={0.02}
+      <ambientLight intensity={0.3} />
+      <directionalLight position={[R * 2, R * 4, R * 2]} intensity={2.4} color="#fff4e6" castShadow={!lite}
+        shadow-mapSize={[2048, 2048]} shadow-bias={-0.0002} shadow-normalBias={0.02}
         shadow-camera-left={-R * 3} shadow-camera-right={R * 3} shadow-camera-top={R * 3} shadow-camera-bottom={-R * 3} shadow-camera-far={R * 12} />
       <spotLight position={[-R * 3, R * 2, -R * 2]} intensity={40} angle={0.6} penumbra={1} color="#cfe3ff" distance={R * 12} />
-      <spotLight position={[R * 3, R * 0.5, -R * 3]} intensity={30} angle={0.7} penumbra={1} color="#e8c99a" distance={R * 12} />
-      <Environment resolution={1024}>
+      <Environment resolution={lite ? 256 : 512}>
         <Lightformer form="rect" intensity={3} position={[0, 5, -6]} scale={[12, 3, 1]} color="#ffffff" />
         <Lightformer form="rect" intensity={1.6} position={[-6, 1.5, 1]} rotation-y={Math.PI / 2} scale={[8, 1.2, 1]} color="#cfe9ff" />
         <Lightformer form="rect" intensity={1.2} position={[6, 1, 3]} rotation-y={-Math.PI / 2} scale={[8, 1, 1]} color="#ffe8c7" />
-        <Lightformer form="ring" intensity={2} position={[0, 8, 0]} rotation-x={Math.PI / 2} scale={4} />
       </Environment>
 
       <group ref={spin} position={[prep.centre.x, 0, prep.centre.z]}>
@@ -223,37 +320,44 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
             onPointerMove={(ev) => { ev.stopPropagation(); const id = pick(ev); if (id !== hover) onHover(id); document.body.style.cursor = id ? 'pointer' : ''; }}
             onPointerOut={() => { onHover(null); document.body.style.cursor = ''; }}
             onClick={(ev) => { ev.stopPropagation(); const id = pick(ev); if (id) onSelect(id); }} />
-          {look && show && prep.parts[show] && <Internal key={show} look={look} id={show} part={parts[show]} at={prep.parts[show].centre} r={prep.parts[show].radius} />}
-          {selInfo && at(sel) && (
-            <Html position={at(sel)} zIndexRange={[20, 10]} style={{ pointerEvents: 'none' }}>
+          {(dots || inspect) && <Dots prep={prep} parts={parts} eRef={eRef} showRef={showRef} hidden={show} onSelect={onSelect} onHover={onHover} />}
+          {look && show && prep.parts[show] && <Internal key={show} look={look} id={show} part={parts[show]} at={posOf(show)} r={prep.parts[show].radius} floor={prep.floor - R * 0.27} />}
+          {selInfo && posOf(sel) && !look && (
+            <Html position={posOf(sel)} zIndexRange={[20, 10]} style={{ pointerEvents: 'none' }}>
               <div className="anno" style={{ '--c': healthColor(selInfo.health, selInfo.verdict) }}>
                 <span className="anno-dot" />
                 <div className="anno-box"><b>{selInfo.name}</b><span>{Math.round((selInfo.health ?? 0) * 100)}% · {selInfo.verdict}</span></div>
               </div>
             </Html>
           )}
-          {hovInfo && at(hover) && (
-            <Html position={at(hover)} center zIndexRange={[20, 10]} style={{ pointerEvents: 'none' }}>
+          {hovInfo && posOf(hover) && (
+            <Html position={posOf(hover)} center zIndexRange={[20, 10]} style={{ pointerEvents: 'none' }}>
               <div className="hover-tag" style={{ '--c': healthColor(hovInfo.health, hovInfo.verdict) }}>{hovInfo.name}<b>{Math.round((hovInfo.health ?? 0) * 100)}%</b></div>
             </Html>
           )}
         </group>
       </group>
 
-      <mesh rotation-x={-Math.PI / 2} position={[prep.centre.x, prep.floor - R * 0.28, prep.centre.z]}>
-        <circleGeometry args={[R * 14, 64]} />
-        <MeshReflectorMaterial blur={[400, 120]} resolution={1024} mixBlur={1} mixStrength={2.2} roughness={0.85} depthScale={1.1} minDepthThreshold={0.4} maxDepthThreshold={1.3} color={light ? '#dcdce1' : '#101014'} metalness={light ? 0.2 : 0.6} mirror={light ? 0.3 : 0.5} />
-      </mesh>
-      <ContactShadows position={[prep.centre.x, prep.floor - R * 0.279, prep.centre.z]} scale={R * 7} blur={2.4} far={R * 3} opacity={light ? 0.42 : 0.6} />
+      {lite ? (
+        <ContactShadows position={[prep.centre.x, prep.floor - R * 0.279, prep.centre.z]} scale={R * 7} blur={2.4} far={R * 3} opacity={light ? 0.35 : 0.5} resolution={256} frames={1} />
+      ) : (
+        <>
+          <mesh rotation-x={-Math.PI / 2} position={[prep.centre.x, prep.floor - R * 0.28, prep.centre.z]} receiveShadow>
+            <circleGeometry args={[R * 14, 64]} />
+            <meshStandardMaterial color={light ? '#dddde2' : '#121216'} roughness={0.9} metalness={0.1} />
+          </mesh>
+          <ContactShadows position={[prep.centre.x, prep.floor - R * 0.279, prep.centre.z]} scale={R * 7} blur={2.4} far={R * 3} opacity={light ? 0.42 : 0.6} resolution={512} />
+        </>
+      )}
 
-      <OrbitControls ref={controls} enableZoom={inspect} enablePan={false} enableDamping dampingFactor={0.08} minPolarAngle={0.2} maxPolarAngle={Math.PI / 2.05}
-        minDistance={R * 0.3} maxDistance={R * 9} />
-      <EffectComposer multisampling={8}>
-        <N8AO quality="high" aoRadius={R * 0.3} intensity={2.2} distanceFalloff={0.6} />
-        <Bloom mipmapBlur luminanceThreshold={0.82} luminanceSmoothing={0.2} intensity={0.7} />
-        <Vignette offset={0.28} darkness={light ? 0.25 : 0.68} />
-        <ToneMapping mode={ToneMappingMode.AGX} />
-      </EffectComposer>
+      <OrbitControls ref={controls} enableZoom={inspect} enablePan={false} enableDamping dampingFactor={0.08} minPolarAngle={0.2} maxPolarAngle={Math.PI / 1.9}
+        minDistance={R * 0.25} maxDistance={R * 9} />
+      {!lite && (
+        <EffectComposer multisampling={4}>
+          <Bloom mipmapBlur luminanceThreshold={0.85} luminanceSmoothing={0.2} intensity={0.6} />
+          <ToneMapping mode={ToneMappingMode.AGX} />
+        </EffectComposer>
+      )}
     </>
   );
 }
