@@ -15,14 +15,36 @@ One container with three processes (see `start.sh`):
 
 The data is simulated. Anyone who knows the gateway address can read it, but no one can change it.
 
+## Permission and access
+
+IVHM (`tejeshvenkat/ivhm`) is private and proprietary: hosting it needs Tejesh Venkat Dokku's permission.
+Render downloads it at build time with a **read-only GitHub token**. Tejesh has to create it, because
+GitHub fine-grained tokens only reach repositories owned by the account that creates them:
+
+1. GitHub → Settings → Developer settings → Personal access tokens → **Fine-grained tokens** → Generate new token.
+2. Resource owner: `tejeshvenkat`. Repository access: **Only select repositories** → `ivhm`.
+3. Permissions → Repository permissions → **Contents: Read-only** (nothing else).
+4. Set an expiry date, generate, and copy the token.
+
+The token is never put in this repository or in the built image. It's mounted for the one build step that
+downloads IVHM, then discarded.
+
 ## Host it on Render
 
 1. Sign in at render.com with GitHub (you create the account; it's free).
-2. **New → Blueprint**, pick the `project` repository. Render reads `render.yaml` and builds
-   `deploy/ivhm-live/Dockerfile`. The first build takes about 5–10 minutes.
-3. When it's live, open `https://<your-service>.onrender.com/health`. It should say
+2. **New → Blueprint**, pick the `project` repository, and apply. Render reads `render.yaml`.
+   The first build fails with a missing secret; that's expected until step 3.
+3. Open the new **ivhm-live** service → **Environment** → **Secret Files** → Add:
+   - Filename: `github_token`
+   - Contents: the token from Tejesh (just the token, on one line)
+
+   Save, then **Manual Deploy → Deploy latest commit**. The build takes about 5–10 minutes.
+4. When it's live, open `https://<your-service>.onrender.com/health`. It should say
    `{"gateway":"ok","ivhm":"ok"}`. Just after a start, `"ivhm":"starting"` is normal for a minute
    while the engine model trains.
+
+When the token expires, Tejesh makes a new one and you replace the secret file. Running copies keep
+working; only new builds need the token.
 
 ## Point the website at it
 

@@ -1,5 +1,6 @@
+# syntax=docker/dockerfile:1
 # IVHM live server for the public website: private IVHM server + simulator + read-only gateway.
-# Build from the repository root:  docker build -t ivhm-live deploy/ivhm-live
+# Build:  docker build --secret id=github_token,src=<file with the token> -t ivhm-live deploy/ivhm-live
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 MALLOC_ARENA_MAX=2
@@ -7,13 +8,17 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 MALLOC_ARENA
 RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
-# IVHM itself, pinned to an exact commit, dependencies checked against their SHA-256 hashes
+# IVHM itself (a private repository), pinned to an exact commit, dependencies checked against their
+# SHA-256 hashes. The read-only GitHub token comes from the Render secret file "github_token": it is
+# mounted for this one step only, sent as a header (never written to git config), and not kept in the image.
 ARG IVHM_REF=de3b6549f1b4ae015698514af9ef91d8b46f6afd
-RUN git clone https://github.com/tejeshvenkat/ivhm.git /src \
- && cd /src && git checkout "$IVHM_REF" \
+RUN --mount=type=secret,id=github_token,required=true \
+    AUTH=$(printf 'x-access-token:%s' "$(tr -d '\r\n' < /run/secrets/github_token)" | base64 -w0) \
+ && git -c http.extraHeader="Authorization: Basic $AUTH" clone --quiet https://github.com/tejeshvenkat/ivhm.git /src \
+ && cd /src && git checkout --quiet "$IVHM_REF" \
  && pip install --require-hashes -r requirements/linux-py311.txt \
  && pip install --no-deps . \
- && rm -rf /src
+ && cd / && rm -rf /src
 
 # NASA C-MAPSS engine data for the airliner replay
 COPY fetch_cmapss.py /tmp/fetch_cmapss.py
