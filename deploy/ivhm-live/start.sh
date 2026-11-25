@@ -14,7 +14,7 @@ python -m ivhm.live.server --host 127.0.0.1 --port 8001 --db /data/ivhm_live.db 
   until python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/api/health', timeout=3)" 2>/dev/null; do
     sleep 3
   done
-  exec python -m ivhm.live.simulate --server http://127.0.0.1:8001 --cmapss /cmapss --auto-maintain
+  exec python -m ivhm.live.simulate --server http://127.0.0.1:8001 --cmapss /cmapss --auto-maintain --speed 5
 ) &
 
 exec uvicorn gateway:app --host 0.0.0.0 --port "${PORT:-10000}" --proxy-headers --forwarded-allow-ips '*'
