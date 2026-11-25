@@ -2,8 +2,11 @@
 // fleet, the page uses demo values instead, made up per part and always labelled "Demo data" in the UI.
 import { partInfo, VEHICLES } from './data';
 
+// Where the live server is. Locally: '' (the Vite dev proxy forwards /api to 127.0.0.1:8000).
+// On the deployed site: set VITE_IVHM_API at build time to the hosted gateway, e.g. https://ivhm-live.onrender.com
+const API = (import.meta.env.VITE_IVHM_API || '').replace(/\/+$/, '');
 const get = async (path) => {
-  const r = await fetch(path, { headers: { Accept: 'application/json' } });
+  const r = await fetch(API + path, { headers: { Accept: 'application/json' } });
   if (!r.ok) throw new Error(`${path}: ${r.status}`);
   return r.json();
 };

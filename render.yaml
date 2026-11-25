@@ -1,0 +1,13 @@
+# Render Blueprint: the hosted IVHM live server for the website (read-only gateway + simulator).
+# Render dashboard -> New -> Blueprint -> pick this repository.
+services:
+  - type: web
+    name: ivhm-live
+    runtime: docker
+    plan: free
+    dockerfilePath: ./deploy/ivhm-live/Dockerfile
+    dockerContext: ./deploy/ivhm-live
+    healthCheckPath: /health
+    envVars:
+      - key: ALLOW_ORIGINS
+        value: "*"   # tighten to your site, e.g. https://your-site.vercel.app
