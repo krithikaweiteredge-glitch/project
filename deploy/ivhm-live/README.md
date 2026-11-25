@@ -40,8 +40,8 @@ downloads IVHM, then discarded.
 
    Save, then **Manual Deploy → Deploy latest commit**. The build takes about 5–10 minutes.
 4. When it's live, open `https://<your-service>.onrender.com/health`. It should say
-   `{"gateway":"ok","ivhm":"ok"}`. Just after a start, `"ivhm":"starting"` is normal for a minute
-   while the engine model trains.
+   `{"gateway":"ok","ivhm":"ok"}`. Just after a start, `"ivhm":"starting"` is normal for a few seconds.
+   (The engine model is trained during the build and ships in the image, so starts are quick.)
 
 When the token expires, Tejesh makes a new one and you replace the secret file. Running copies keep
 working; only new builds need the token.

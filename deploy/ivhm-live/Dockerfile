@@ -24,6 +24,12 @@ RUN --mount=type=secret,id=github_token,required=true \
 COPY fetch_cmapss.py /tmp/fetch_cmapss.py
 RUN mkdir -p /cmapss && python /tmp/fetch_cmapss.py /cmapss && rm /tmp/fetch_cmapss.py
 
+# Train the engine model now, on the build machine, and ship it in the image. The server finds it in
+# /data and loads it in seconds, instead of retraining for minutes on every start of a small free instance.
+RUN mkdir -p /data && python -c "from pathlib import Path; from ivhm.live.server import load_turbofan; \
+print(load_turbofan('/cmapss', Path('/data/turbofan_FD001.pkl')))" \
+ && test -s /data/turbofan_FD001.pkl
+
 WORKDIR /app
 COPY gateway.py start.sh ./
 RUN sed -i 's/\r$//' start.sh && chmod +x start.sh \
