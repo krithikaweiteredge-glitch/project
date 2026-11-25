@@ -1,0 +1,11 @@
+Model Information:
+* title:	Su-30 MKI loadout#1 [Brahmos]
+* source:	https://sketchfab.com/3d-models/su-30-mki-loadout1-brahmos-e9b810ba081544d0997ad8cce4b95fc8
+* author:	abhinab.das000 (https://sketchfab.com/abhinab.das000)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Su-30 MKI loadout#1 [Brahmos]" (https://sketchfab.com/3d-models/su-30-mki-loadout1-brahmos-e9b810ba081544d0997ad8cce4b95fc8) by abhinab.das000 (https://sketchfab.com/abhinab.das000) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

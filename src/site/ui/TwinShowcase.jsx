@@ -9,6 +9,7 @@ import { demoVehicle } from '../api';
 import { href } from '../router';
 import { buildModel } from '../three/models';
 import { composePredator, PREDATOR_URL } from '../three/predator';
+import { composeSu30, SU30_URL } from '../three/su30';
 import VehicleScene from '../three/VehicleScene';
 import { useInView } from './motion';
 
@@ -24,10 +25,10 @@ export const LOOP_S = 14;
 export function loopAt(t) {
   const x = t % LOOP_S;
   if (x < 2) return { p: 1, inside: false, label: 'Assembled' };
-  if (x < 4.5) return { p: 1 + (x - 2) / 2.5 * 1.3, inside: false, label: 'Taking it apart' };
+  if (x < 4.5) return { p: 1 + (x - 2) / 2.5 * 1.3, inside: false, label: 'Seeing inside' };
   if (x < 6) return { p: 2.3 + (x - 4.5) / 1.5 * 0.9, inside: false, label: 'Judged by health' };
   if (x < 10.5) return { p: 3.2, inside: false, label: 'Judged by health' };
-  if (x < 13) return { p: 3.2 - (x - 10.5) / 2.5 * 2.2, inside: false, label: 'Putting it back together' };
+  if (x < 13) return { p: 3.2 - (x - 10.5) / 2.5 * 2.2, inside: false, label: 'Closing up' };
   return { p: 1, inside: false, label: 'Assembled' };
 }
 
@@ -44,6 +45,15 @@ export function Twin({ look, model, phase, insets: given, focus = null }) {
   );
 }
 export function BuiltTwin({ look, phase, insets, focus }) {
+  if (look === 'fighter_twin_engine') return <Su30Twin phase={phase} insets={insets} focus={focus} />;   // the real Su-30MKI
+  return <ShapeTwin look={look} phase={phase} insets={insets} focus={focus} />;
+}
+function Su30Twin({ phase, insets, focus }) {
+  const { scene } = useGLTF(SU30_URL);
+  const model = useMemo(() => composeSu30(scene), [scene]);
+  return <Twin look="fighter_twin_engine" model={model} phase={phase} insets={insets} focus={focus} />;
+}
+function ShapeTwin({ look, phase, insets, focus }) {
   const model = useMemo(() => buildModel(look, []), [look]);
   return <Twin look={look} model={model} phase={phase} insets={insets} focus={focus} />;
 }

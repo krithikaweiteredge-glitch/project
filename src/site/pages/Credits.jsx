@@ -14,7 +14,7 @@ export default function Credits() {
       <div className="eyebrow">Credits</div>
       <h1>Photos <span className="serif">&amp; videos</span></h1>
       <p className="lede">All media on this site comes from Wikimedia Commons and is used under the licence shown; click a title for the file page with full attribution.
-        The 3D models are built in code by the IVHM platform. The Hubble Space Telescope, Space Shuttle external tank and solid rocket boosters are from NASA 3D Resources (public domain; NASA does not endorse this site).</p>
+        The 3D models are built in code by the IVHM platform, except the Su-30MKI: "Su-30 MKI loadout#1 [Brahmos]" by abhinab.das000 (Sketchfab, CC BY 4.0, https://sketchfab.com/3d-models/su-30-mki-loadout1-brahmos-e9b810ba081544d0997ad8cce4b95fc8). The Hubble Space Telescope, Space Shuttle external tank and solid rocket boosters are from NASA 3D Resources (public domain; NASA does not endorse this site).</p>
       <div className="credit-list">
         <div><h4>Component photographs</h4><ul>{Object.entries(COMPONENT_PHOTOS).map(([k, m]) => <Row key={k} kind={k.replace(/_/g, ' ').toUpperCase()} m={m} />)}</ul></div>
         {Object.values(VEHICLES).map((v) => (

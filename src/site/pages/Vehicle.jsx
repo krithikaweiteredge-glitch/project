@@ -10,6 +10,7 @@ import { buildModel } from '../three/models';
 import VehicleScene from '../three/VehicleScene';
 import { useGLTF } from '@react-three/drei';
 import { composeLaunch, composeSatellite, DRACO, NASA } from '../three/realmodels';
+import { composeSu30, SU30_URL } from '../three/su30';
 import Inspector from '../ui/Inspector';
 
 const RANK = { 'NO-GO': 0, NO_GO: 0, CAUTION: 1, UNKNOWN: 2, SAFE: 3, GO: 3 };
@@ -18,6 +19,7 @@ const isFlag = (v) => v === 'NO-GO' || v === 'NO_GO' || v === 'CAUTION';
 /** the vehicle's 3D model: built in code to match the aircraft in its photo (Heron, Tejas, Su-30MKI, Dhruv, A320, Matrice) */
 export default function Vehicle({ look }) {
   const l = VEHICLES[look] ? look : 'quadcopter';
+  if (l === 'fighter_twin_engine') return <Su30Vehicle />;
   if (l === 'satellite') return <HubbleVehicle />;
   if (l === 'launch_vehicle') return <LaunchVehicle />;
   return <BuiltVehicle look={look} />;
@@ -25,6 +27,12 @@ export default function Vehicle({ look }) {
 function BuiltVehicle({ look }) {
   const model = useMemo(() => buildModel(VEHICLES[look] ? look : 'quadcopter', []), [look]);
   return <VehicleView look={look} model={model} />;
+}
+
+function Su30Vehicle() {
+  const { scene } = useGLTF(SU30_URL);
+  const model = useMemo(() => composeSu30(scene), [scene]);
+  return <VehicleView look="fighter_twin_engine" model={model} />;
 }
 
 function HubbleVehicle() {

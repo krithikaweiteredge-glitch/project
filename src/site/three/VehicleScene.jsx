@@ -89,7 +89,7 @@ function prepare(model) {
   }
   const parts = Object.fromEntries(Object.entries(comps).map(([k, e]) => {
     const c = e.box.getCenter(new THREE.Vector3()), s = e.box.getSize(new THREE.Vector3()).length() / 2;
-    return [k, { centre: c, home: e.home.getCenter(new THREE.Vector3()), radius: Math.max(s, radius * 0.06) }];
+    return [k, { centre: c, home: e.home.getCenter(new THREE.Vector3()), size: e.home.getSize(new THREE.Vector3()), radius: Math.max(s, radius * 0.06) }];
   }));
   const exploded = pieces.reduce((r, p) => Math.max(r, new THREE.Box3().setFromObject(p.obj).getCenter(new THREE.Vector3()).add(p.out).sub(centre).length()), radius);
   // x-ray outlines: crisp edge lines for the shell, so the see-through airframe still reads as an aircraft
@@ -224,15 +224,23 @@ const CALLOUTS = {
  * their simple shapes, sized to the part, while the aircraft is apart. A drone battery shows its cells and wiring,
  * an engine its compressor and turbine, instead of a box.
  */
+/** parts drawn as plain shapes (a box, a cylinder, a zone) that get their detailed model on the home page; rotors,
+ *  propellers, skids, gear and shafts already have their real shape and stay as they are */
+const SWAP = ['engine', 'apu', 'motor', 'esc', 'inverter', 'battery', 'avionics', 'electrical', 'hydraulics', 'fuel', 'ecs',
+  'main_gearbox', 'tail_gearbox', 'gearbox', 'flight_actuator', 'actuator'];
+const swaps = (id) => SWAP.some((p) => id === p || id.startsWith(p + '_'));
+
 function Detailed({ prep, parts, eRef, showRef, look }) {
-  const items = useMemo(() => (CALLOUTS[look] || []).filter(([id]) => prep.parts[id]).map(([id]) => ({ id, entry: internalFor(look, id) })), [look, prep]);
+  const items = useMemo(() => (CALLOUTS[look] || []).filter(([id]) => prep.parts[id] && swaps(id)).map(([id]) => ({ id, entry: internalFor(look, id) })), [look, prep]);
   const refs = useRef([]);
   useFrame(() => {
     const on = showRef.current;
     items.forEach(({ id }, i) => {
       const g = refs.current[i]; if (!g) return;
       partAt(prep.parts[id], eRef.current, g.position);
-      g.scale.setScalar(prep.parts[id].radius * 0.95 * Math.max(on, 0.001));   // the detailed models are ~2.2 units across
+      // fit the detailed model (~2.2 units across) into the real space of the part it replaces
+      const sz = prep.parts[id].size, fit = Math.max(sz.x, sz.y, sz.z) / 2.2;
+      g.scale.setScalar(fit * Math.max(on, 0.001));
       g.visible = on > 0.02;
     });
   });
@@ -344,20 +352,22 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
   }, [prep, camera, R]);
   useEffect(() => { focusN.current = 110; }, [sel, inspect, focus]);
   const show = inspect ? sel : focus;            // the part opened up to show its internals
-  const swapIds = useMemo(() => new Set(dots && !inspect ? (CALLOUTS[look] || []).map(([id]) => id) : []), [dots, inspect, look]);
+  const swapIds = useMemo(() => new Set(dots && !inspect ? (CALLOUTS[look] || []).map(([id]) => id).filter(swaps) : []), [dots, inspect, look]);
 
   const off = useRef({ x: 0, y: 0 });
   useFrame((state, dt) => {
     const t = state.clock.elapsedTime;
-    let e, c;
+    let e, c, rev;
     if (inspect) {                               // the inspector: assembled unless the user takes it apart; always coloured
-      e = THREE.MathUtils.lerp(eRef.current, explode?.current ? 1 : 0, 0.06); c = 1;
+      e = THREE.MathUtils.lerp(eRef.current, explode?.current ? 1 : 0, 0.06); c = 1; rev = e;
     } else {
-      const p = progress.current; e = explodeAt(p); c = colourAt(p);
+      // home page (dots): an x-ray reveal - every part stays exactly where it is in the aircraft while the shell
+      // turns see-through; elsewhere the aircraft still comes apart
+      const p = progress.current; rev = explodeAt(p); e = dots ? 0 : rev; c = colourAt(p);
     }
     eRef.current = e;
     const only = inspect && !!explode?.current, frameOpen = show === 'airframe';   // exploded in the inspector: components only, no shell
-    prep.edgeMat.opacity = THREE.MathUtils.lerp(prep.edgeMat.opacity, inspect && !only && (!show || frameOpen) ? (light ? 0.62 : 0.52) : 0, 0.1);
+    prep.edgeMat.opacity = THREE.MathUtils.lerp(prep.edgeMat.opacity, inspect && !only && (!show || frameOpen) ? (light ? 0.62 : 0.52) : !inspect && dots ? rev * (light ? 0.5 : 0.4) : 0, 0.1);
     prep.edgeMat.color.set(light ? '#3d5f86' : '#8fb3d9'); prep.edgeMat.visible = prep.edgeMat.opacity > 0.01;
     showRef.current = THREE.MathUtils.lerp(showRef.current, inspect ? 1 : dots ? c : 0, 0.1);
     if (spin.current) {
@@ -373,7 +383,7 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
         const m = o.material, id = o.userData.component;
         if (o.userData.body) {
           // the airframe: solid on the home page, a ghost in the inspector so the components inside show
-          m.opacity = THREE.MathUtils.lerp(m.opacity, inspect ? (only || (show && !frameOpen) ? 0 : 0.16) : (1 - 0.9 * e) * (show ? 0.4 : 1), 0.12);
+          m.opacity = THREE.MathUtils.lerp(m.opacity, inspect ? (only || (show && !frameOpen) ? 0 : 0.16) : (1 - 0.88 * rev) * (show ? 0.4 : 1), 0.12);
           if (inspect) m.color.lerp(XRAY, 0.2);
           m.depthWrite = m.opacity > 0.6;
           o.visible = !inspect || m.opacity > 0.01;
@@ -394,7 +404,7 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
         m.emissiveIntensity = skin || shell ? 0 : isSel ? 0.45 : isHover ? 0.35 : isFlag ? c * 0.25 : c * (inspect ? 0.08 : 0.05);
         const ghost = show && id !== show && !isHover;
         // outside the inspector the shell fades like the unmonitored structure, so the components inside show
-        const shellFade = (1 - 0.9 * e) * (show ? 0.4 : 1);
+        const shellFade = (1 - 0.88 * rev) * (show ? 0.4 : 1);
         m.opacity = THREE.MathUtils.lerp(m.opacity, (isShown && !skin) || (skin && (only || (show && !frameOpen))) ? 0 : skin ? 0.16 : shell ? shellFade : ghost ? (inspect ? 0 : 0.12) : swap ? 1 - c : 1, inspect && ghost ? 0.25 : 0.15);
         o.visible = m.opacity > 0.02;
         m.depthWrite = m.opacity > 0.6;
