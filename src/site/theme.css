@@ -194,7 +194,7 @@ body.site .footer-word { font-family: var(--sans); font-weight: 600; letter-spac
   body.site .cap + .cap, body.site .proof + .proof, body.site .deploy:nth-child(even) { padding-left: 0; border-left: 0; }
   body.site .step { margin-bottom: 44px; }
 }
-body.site .pro-h .split-w { margin-right: .24em; padding-right: 0; }
+body.site .pro-h .split-w { margin-right: 0; padding-right: 0; }   /* real spaces between the words now */
 @media (max-width: 760px) { body.site .nav-right .btn.line { display: none; } }
 
 /* real component photograph in the inspector */

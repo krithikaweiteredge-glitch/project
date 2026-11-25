@@ -116,6 +116,7 @@ body.site .page { padding: 140px var(--pad) 80px; }
 body.site .page-head { max-width: 900px; margin-bottom: 56px; }
 body.site .page-head .pro-h { margin-top: 18px; }
 body.site .page-head .pro-body { margin-top: 20px; }
+body.site .page-head .pro-lead { margin-top: 26px; max-width: 760px; }
 body.site .page .ex-tabs { margin-bottom: 10px; }
 body.site .plat-cat { padding: 44px 0 30px; border-bottom: 1px solid var(--line); }
 body.site .plat-cat-head { display: flex; justify-content: space-between; align-items: baseline; gap: 30px; margin-bottom: 26px; }

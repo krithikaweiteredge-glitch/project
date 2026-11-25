@@ -1,5 +1,5 @@
 // The motion layer: smooth scrolling, preloader, page curtain, cursor, magnetic hover, text and image reveals.
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, Fragment } from 'react';
 import Lenis from 'lenis';
 
 // ---------- smooth scrolling (Lenis) ----------
@@ -130,8 +130,10 @@ export function Split({ text, as: Tag = 'h2', className = '', delay = 0, stagger
         <span className="split-line" key={li}>
           {line.split(' ').map((w, wi) => {
             const it = w.startsWith('_'); const i = k++;
-            return <span className="split-w" key={wi}><span style={{ transitionDelay: `${delay + i * stagger}ms` }} className={it ? 'it' : ''}>{it ? w.slice(1).replace(/_/g, ' ') : w}</span></span>;
+            // a real space between words, so the heading reads as words when copied, indexed or read aloud
+            return <Fragment key={wi}>{wi > 0 && ' '}<span className="split-w"><span style={{ transitionDelay: `${delay + i * stagger}ms` }} className={it ? 'it' : ''}>{it ? w.slice(1).replace(/_/g, ' ') : w}</span></span></Fragment>;
           })}
+          {li < lines.length - 1 && ' '}
         </span>
       ))}
     </Tag>

@@ -1,5 +1,6 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
+import { useLenis } from '../ui/motion';
 import * as THREE from 'three';
 import { VEHICLES, catOf, verdictOf, healthColor, groupOf, GROUP_ORDER } from '../data';
 import { href } from '../router';
@@ -107,6 +108,17 @@ function VehicleView({ look, model }) {
   const insets = useRef({ x: 0, y: 0, zoom: 1.25 });            // the inline viewer starts a little further out
   const progress = useRef(3.2);
   const toInspector = () => boxRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // #/vehicle/<type>/inspect opens straight on the inspector (the footer's "Live digital twin" link)
+  const lenis = useLenis();
+  useEffect(() => {
+    if (!location.hash.endsWith('/inspect')) return;
+    // through the smooth-scroll engine, after the page's own scroll-to-top has run
+    const t = setTimeout(() => {
+      if (lenis && boxRef.current) lenis.scrollTo(boxRef.current, { offset: -70, duration: 1.2 });
+      else toInspector();
+    }, 600);
+    return () => clearTimeout(t);
+  }, [look, lenis]);
 
   // canvas for the PDF snapshot
   const gl = useRef();

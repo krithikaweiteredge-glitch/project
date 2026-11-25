@@ -8,7 +8,8 @@ export default function About() {
     <div className="page about">
       <header className="page-head">
         <div className="eyebrow">About IVHM</div>
-        <Split as="h1" text="Health intelligence for aircraft that cannot fail." className="pro-h" />
+        <Split as="h1" text="Vehicle Health Management for Mission-Critical Aircraft & Fleets." className="pro-h" />
+        <p className="pro-lead">Level 1 Software Qualification Complete: Verified on 690 automated tests and NASA / industrial benchmarks. Level 2 on-premise flight-line integration ready.</p>
         <p className="pro-body">IVHM (Integrated Vehicle Health Management) watches every monitored part of a helicopter, fighter jet, UAV, drone or airliner. Each part learns its own normal from its own data; the platform predicts remaining life with an honest range and gives one verdict before every flight: Safe, Caution or No-go, with the service task that clears it.</p>
       </header>
 

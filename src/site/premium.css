@@ -65,7 +65,7 @@ body.site .pill { font-family: var(--sans); font-weight: 600; font-size: 9.5px; 
 
 /* ---------- split text ---------- */
 body.site .split-line { display: block; }
-body.site .split-w { display: inline-block; overflow: hidden; vertical-align: top; padding: .04em .1em .12em 0; margin: -.04em 0 -.12em; }
+body.site .split-w { display: inline-block; overflow: hidden; vertical-align: top; padding: .04em .06em .12em 0; margin: -.04em 0 -.12em; }
 body.site .split-w > span { display: inline-block; transform: translateY(115%) rotate(3deg); transform-origin: left bottom; transition: transform 1.4s var(--ease); }
 body.site .split.in .split-w > span { transform: none; }
 body.site .split .it { color: var(--gold); }

@@ -131,7 +131,7 @@ function LiveInstruments() {
 /** a figure that counts up once it scrolls into view */
 export function Count({ to, suffix = '', prefix = '', decimals = 0 }) {
   const [ref, seen] = useInView({ threshold: 0.4 });
-  const [v, setV] = useState(0);
+  const [v, setV] = useState(to);          // the real figure is in the page from the start (previews, search, no-JS)
   useEffect(() => {
     if (!seen) return;
     let raf; const t0 = performance.now();
@@ -162,10 +162,10 @@ const STEPS = [
   ['03', 'Act', 'Verdicts, remaining life and a service plan reach the fleet board, alerts, email, SMS, Teams or Slack, in under a second.'],
 ];
 export const PROOF = [
-  { n: 100, s: '%', t: 'Jet-engine failures caught', d: 'NASA C-MAPSS turbofans, all four fleets, with zero early false alarms.' },
-  { n: 13.6, dec: 1, p: '≤', t: 'Cycles life error (RMSE)', d: 'Remaining life on unseen NASA engines; the 90% range holds 91–92% of the time.' },
-  { n: 17, s: '/17', t: 'Bearings flagged before failure', d: 'FEMTO / PRONOSTIA run-to-failure bearings, each tested on data it never saw.' },
-  { n: 38, s: ' ms', t: 'Reading to decision', d: 'Median on the live system; 95% within half a second across 1.8 million readings.' },
+  { n: 17, s: ' / 17', t: 'Bearing faults', d: 'All 17 run-to-failure bearings caught before failure (FEMTO PRONOSTIA).' },
+  { n: 12.2, dec: 1, s: ' cycles', t: 'NASA turbofans', d: 'Remaining life RMSE on 100 unseen NASA test engines (C-MAPSS).' },
+  { n: 38, s: ' ms', t: 'Decision latency', d: 'Median sensor-reading-to-decision time (target < 1.0 s).' },
+  { n: 690, s: ' passed', t: 'Automated tests', d: '100% passing regression test suite across all physics twins.' },
 ];
 export const DEPLOY = [
   ['Cloud', 'Docker package for any cloud, HTTPS, PostgreSQL and daily backups.'],
@@ -192,7 +192,7 @@ export default function Home() {
         <div className="pro-figs">
           <Reveal><b><Count to={7} /></b><span>Platform templates across five classes</span></Reveal>
           <Reveal delay={90}><b><Count to={30} suffix="+" /></b><span>Physics-based part packs</span></Reveal>
-          <Reveal delay={180}><b><Count to={680} /></b><span>Automatic checks passing</span></Reveal>
+          <Reveal delay={180}><b><Count to={690} /></b><span>Automated tests passing</span></Reveal>
           <Reveal delay={270}><b><Count to={95} suffix="%+" /></b><span>Calibrated range on every life estimate</span></Reveal>
         </div>
       </section>
