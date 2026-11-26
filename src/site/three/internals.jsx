@@ -440,6 +440,128 @@ function Shaft({ c }) {
 }
 Shaft.labels = () => [['shaft', 'Drive shaft', [-0.2, 0.15, 0]], ['bearings', 'Hanger bearings', [0.2, 0.25, 0]], ['couplings', 'Flexible couplings', [1.15, 0.25, 0]]];
 
+/** a helicopter turboshaft, laid out like the Shakti (Safran Ardiden 1H): reduction gearbox and output shaft at the
+ *  front, a screened radial intake, a two-stage centrifugal compressor, an annular combustor with its fuel
+ *  injectors, a one-stage gas-generator turbine and a two-stage power turbine, the exhaust bending out to the side,
+ *  and the accessory gearbox, fuel control and oil tank underneath. Front at +x */
+function Turboshaft({ c }) {
+  const gg = useRef(), pt = useRef(), flames = useRef([]);
+  const compM = useSub('titan', c('compressor')), turbM = useSub('hot', c('turbine')), oilM = useSub('brass', c('oil system'));
+  const shell = useMemo(M.shell, []), cast = useMemo(M.cast, []), dark = useMemo(M.dark, []), steel = useMemo(M.steel, []);
+  const alu = useMemo(M.alu, []), brass = useMemo(M.brass, []), hot = useMemo(M.hot, []), flame = useMemo(M.flame, []);
+  // a centrifugal impeller: a hub that sweeps from the shaft out to a wide back face
+  const hub = useMemo(() => new THREE.LatheGeometry([0.04, 0.06, 0.09, 0.14, 0.2, 0.25, 0.27].map((r, i) => new THREE.Vector2(r, 0.09 - i * 0.03)), 40), []);
+  const vane = useMemo(() => new THREE.BoxGeometry(0.012, 0.17, 0.11), []);
+  const exhaust = useMemo(() => new THREE.TubeGeometry(new THREE.CatmullRomCurve3([
+    new THREE.Vector3(-0.86, 0, 0), new THREE.Vector3(-0.98, 0.01, 0.02), new THREE.Vector3(-1.07, 0.12, 0.16), new THREE.Vector3(-1.1, 0.3, 0.34)]), 24, 0.17, 32, false), []);
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    if (gg.current) gg.current.rotation.x = t * 12;
+    if (pt.current) pt.current.rotation.x = t * 7;
+    flames.current.forEach((f, i) => { if (f) f.scale.setScalar(0.7 + 0.35 * Math.abs(Math.sin(t * 13 + i * 1.7))); });
+  });
+  const impeller = (x, k) => (
+    <group key={k} position={[x, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
+      <mesh geometry={hub} material={compM} />
+      {ring(15, (a, i) => <mesh key={i} geometry={vane} material={compM} position={[Math.cos(a) * 0.15, 0, Math.sin(a) * 0.15]} rotation={[0, -a + 0.45, 0.25]} />)}
+    </group>
+  );
+  const turbine = (x, r, k, m) => (
+    <group key={k} position={[x, 0, 0]}>
+      <mesh rotation={[0, 0, Math.PI / 2]} material={m}><cylinderGeometry args={[r * 0.55, r * 0.55, 0.05, 40]} /></mesh>
+      {ring(30, (a, i) => <mesh key={i} material={m} rotation={[a, -0.5, 0]} position={[0, Math.cos(a) * r * 0.78, Math.sin(a) * r * 0.78]}><boxGeometry args={[0.016, r * 0.42, 0.045]} /></mesh>)}
+    </group>
+  );
+  return (
+    <group>
+      {/* casing, cut away on top so the stages show */}
+      <mesh rotation={[0, 0, Math.PI / 2]} position={[-0.05, 0, 0]} material={shell}><cylinderGeometry args={[0.36, 0.33, 1.6, 64, 1, true, Math.PI, Math.PI]} /></mesh>
+      {[0.7, 0.24, -0.06, -0.38, -0.82].map((x) => <mesh key={x} position={[x, 0, 0]} rotation={[0, Math.PI / 2, 0]} material={dark}><torusGeometry args={[0.355, 0.011, 8, 64]} /></mesh>)}
+      {/* reduction gearbox and output shaft */}
+      <mesh position={[0.93, 0, 0]} rotation={[0, 0, Math.PI / 2]} material={cast}><cylinderGeometry args={[0.2, 0.25, 0.3, 40]} /></mesh>
+      <mesh position={[1.12, 0, 0]} rotation={[0, 0, Math.PI / 2]} material={steel}><cylinderGeometry args={[0.13, 0.13, 0.05, 32]} /></mesh>
+      {ring(8, (a, i) => <mesh key={i} position={[1.15, Math.cos(a) * 0.1, Math.sin(a) * 0.1]} rotation={[0, 0, Math.PI / 2]} material={dark}><cylinderGeometry args={[0.012, 0.012, 0.03, 8]} /></mesh>)}
+      {/* screened radial intake */}
+      <mesh position={[0.62, 0, 0]} rotation={[0, 0, Math.PI / 2]} material={shell}><cylinderGeometry args={[0.44, 0.44, 0.2, 48, 1, true]} /></mesh>
+      {[0.54, 0.6, 0.66, 0.72].map((x) => <mesh key={x} position={[x, 0, 0]} rotation={[0, Math.PI / 2, 0]} material={dark}><torusGeometry args={[0.44, 0.005, 6, 64]} /></mesh>)}
+      {ring(24, (a, i) => <mesh key={i} position={[0.63, Math.cos(a) * 0.44, Math.sin(a) * 0.44]} rotation={[0, 0, Math.PI / 2]} material={dark}><cylinderGeometry args={[0.005, 0.005, 0.2, 6]} /></mesh>)}
+      {/* gas generator: two centrifugal impellers, their diffusers, and the gas-generator turbine on one shaft */}
+      <group ref={gg}>
+        {impeller(0.42, 'i1')}{impeller(0.12, 'i2')}
+        {turbine(-0.46, 0.3, 'g', turbM)}
+        <mesh rotation={[0, 0, Math.PI / 2]} material={steel}><cylinderGeometry args={[0.03, 0.03, 1.1, 16]} /></mesh>
+      </group>
+      {[0.34, 0.04].map((x) => <mesh key={x} position={[x, 0, 0]} rotation={[0, Math.PI / 2, 0]} material={alu}><torusGeometry args={[0.31, 0.035, 12, 48]} /></mesh>)}
+      {/* annular combustor, fuel manifold and injectors, flames */}
+      <mesh position={[-0.2, 0, 0]} rotation={[0, Math.PI / 2, 0]} material={cast}><torusGeometry args={[0.22, 0.085, 20, 64]} /></mesh>
+      <mesh position={[-0.2, 0, 0]} rotation={[0, Math.PI / 2, 0]} material={brass}><torusGeometry args={[0.4, 0.012, 8, 64]} /></mesh>
+      {ring(12, (a, i) => <mesh key={i} position={[-0.2, Math.cos(a) * 0.35, Math.sin(a) * 0.35]} rotation={[a, 0, 0]} material={brass}><cylinderGeometry args={[0.012, 0.012, 0.1, 8]} /></mesh>)}
+      {ring(10, (a, i) => <mesh key={i} ref={(el) => (flames.current[i] = el)} material={flame} position={[-0.2, Math.cos(a) * 0.22, Math.sin(a) * 0.22]}><sphereGeometry args={[0.04, 10, 10]} /></mesh>)}
+      {/* free power turbine: two stages driving the output shaft forward through the core */}
+      <group ref={pt}>
+        {turbine(-0.6, 0.32, 'p1', turbM)}{turbine(-0.72, 0.33, 'p2', turbM)}
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0.2, 0, 0]} material={steel}><cylinderGeometry args={[0.016, 0.016, 1.9, 12]} /></mesh>
+      </group>
+      {/* exhaust duct bending out to the side */}
+      <mesh geometry={exhaust} material={hot} />
+      {/* accessory gearbox, starter-generator, fuel control and oil tank underneath */}
+      <RoundedBox args={[0.62, 0.14, 0.26]} radius={0.03} position={[0.3, -0.45, 0]} material={cast} />
+      <mesh position={[0.12, -0.47, 0.22]} rotation={[0, 0, Math.PI / 2]} material={dark}><cylinderGeometry args={[0.08, 0.08, 0.26, 24]} /></mesh>
+      <RoundedBox args={[0.24, 0.12, 0.18]} radius={0.02} position={[-0.2, -0.45, 0.02]} material={dark} />
+      <RoundedBox args={[0.22, 0.16, 0.16]} radius={0.04} position={[0.56, -0.47, -0.2]} material={oilM} />
+      <mesh position={[0.36, -0.26, -0.2]} material={oilM}><cylinderGeometry args={[0.012, 0.012, 0.3, 8]} /></mesh>
+    </group>
+  );
+}
+// (alternating above and below, so the labels along the engine never sit on top of each other)
+Turboshaft.labels = () => [['gearbox', 'Reduction gearbox', [1.05, -0.3, 0.1]], ['compressor', 'Centrifugal compressor', [0.3, 0.5, 0]],
+  ['combustor', 'Annular combustor', [-0.15, -0.42, 0.3]], ['turbine', 'Gas-generator and power turbines', [-0.62, 0.5, 0]],
+  ['exhaust', 'Exhaust', [-1.12, 0.58, 0.4]], ['oil system', 'Oil system', [0.56, -0.68, -0.2]]];
+
+/** a wing-box section: front and rear spars, ribs with lightening holes, stringers under the skins, the fastener
+ *  rows along the spar caps, fuel and hydraulic lines on the rear spar, an access panel. Span along z, chord
+ *  along x (leading edge at -x) */
+function WingPanel({ c }) {
+  const sparM = useSub('alu', c('spars')), ribM = useSub('alu', c('ribs')), strM = useSub('cast', c('stringers')), skinM = useSub('glass', c('skin'));
+  const dark = useMemo(M.dark, []), brass = useMemo(M.brass, []), steel = useMemo(M.steel, []);
+  // airfoil: upper and lower surface heights along the chord
+  const up = (x) => 0.13 * Math.sqrt(Math.max(0, 1 - ((x + 0.05) / 0.85) ** 2)) + 0.015;
+  const lo = (x) => -0.1 * Math.sqrt(Math.max(0, 1 - ((x + 0.05) / 0.85) ** 2));
+  const { skin, rib } = useMemo(() => {
+    const xs = Array.from({ length: 41 }, (_, i) => -0.9 + (i / 40) * 1.7);
+    const outline = new THREE.Shape(xs.map((x) => new THREE.Vector2(x, up(x))).concat(xs.slice().reverse().map((x) => new THREE.Vector2(x, lo(x)))));
+    const skin = new THREE.ExtrudeGeometry(outline, { depth: 2, bevelEnabled: false, curveSegments: 4 }); skin.translate(0, 0, -1);
+    const bx = Array.from({ length: 21 }, (_, i) => -0.5 + (i / 20) * 0.95);
+    const ribShape = new THREE.Shape(bx.map((x) => new THREE.Vector2(x, up(x) - 0.012)).concat(bx.slice().reverse().map((x) => new THREE.Vector2(x, lo(x) + 0.012))));
+    for (const hx of [-0.3, -0.02, 0.25]) { const h = new THREE.Path(); h.absarc(hx, (up(hx) + lo(hx)) / 2, Math.min(0.07, (up(hx) - lo(hx)) * 0.28), 0, Math.PI * 2, true); ribShape.holes.push(h); }
+    const rib = new THREE.ExtrudeGeometry(ribShape, { depth: 0.018, bevelEnabled: false, curveSegments: 12 });
+    return { skin, rib };
+  }, []);
+  const spars = [-0.5, 0.45];
+  return (
+    <group>
+      <mesh geometry={skin} material={skinM} />
+      {spars.map((x) => (
+        <group key={x}>
+          <mesh position={[x, (up(x) + lo(x)) / 2, 0]} material={sparM}><boxGeometry args={[0.02, up(x) - lo(x) - 0.03, 2]} /></mesh>
+          <mesh position={[x, up(x) - 0.02, 0]} material={sparM}><boxGeometry args={[0.09, 0.016, 2]} /></mesh>
+          <mesh position={[x, lo(x) + 0.02, 0]} material={sparM}><boxGeometry args={[0.09, 0.016, 2]} /></mesh>
+          {Array.from({ length: 26 }, (_, i) => <mesh key={i} position={[x, up(x) + 0.003, -0.96 + i * 0.077]} material={dark}><sphereGeometry args={[0.009, 6, 6]} /></mesh>)}
+        </group>
+      ))}
+      {[-0.9, -0.45, 0, 0.45, 0.9].map((z) => <mesh key={z} geometry={rib} material={ribM} position={[0, 0, z - 0.009]} />)}
+      {[-0.36, -0.22, -0.08, 0.06, 0.2, 0.33].flatMap((x) => [
+        <mesh key={'u' + x} position={[x, up(x) - 0.022, 0]} material={strM}><boxGeometry args={[0.022, 0.022, 2]} /></mesh>,
+        <mesh key={'l' + x} position={[x, lo(x) + 0.022, 0]} material={strM}><boxGeometry args={[0.022, 0.022, 2]} /></mesh>,
+      ])}
+      {[0.02, -0.03].map((y, i) => <mesh key={y} position={[0.39, y, 0]} rotation={[Math.PI / 2, 0, 0]} material={i ? steel : brass}><cylinderGeometry args={[0.012, 0.012, 2, 10]} /></mesh>)}
+      <RoundedBox args={[0.3, 0.012, 0.36]} radius={0.005} position={[-0.05, lo(-0.05) - 0.004, 0.22]} material={dark} />
+    </group>
+  );
+}
+WingPanel.labels = () => [['spars', 'Front and rear spars', [-0.5, 0.3, 1.0]], ['ribs', 'Ribs', [0, 0.28, 0.45]],
+  ['stringers', 'Stringers', [-0.22, 0.25, -0.95]], ['skin', 'Skin panels', [0.6, 0.2, -0.4]]];
+
 function Esc({ c }) {
   const swM = useSub('chip', c('switches')), capM = useSub('dark', c('capacitors'));
   const pcb = useMemo(M.pcb, []), fin = useMemo(M.alu, []), copper = useMemo(M.copper, []);
@@ -458,7 +580,7 @@ Esc.labels = () => [['switches', 'Power switches (MOSFETs)', [-0.2, 0.2, -0.2]],
 /** which internal model shows a part (by its id, on a given vehicle type) */
 export function internalFor(look, id) {
   const is = (p) => id === p || id.startsWith(p + '_');
-  if (is('engine')) return look === 'male_uav' ? { C: PistonEngine } : look === 'helicopter' ? { C: Turbofan, p: { shaft: true } } : { C: Turbofan };
+  if (is('engine')) return look === 'male_uav' ? { C: PistonEngine } : look === 'helicopter' ? { C: Turboshaft } : { C: Turbofan };
   if (is('apu')) return { C: Turbofan, p: { shaft: true } };
   if (is('motor')) return { C: Motor };
   if (is('esc') || is('inverter')) return { C: Esc };
@@ -475,7 +597,8 @@ export function internalFor(look, id) {
   if (is('fuel')) return { C: Pump, p: { hydraulic: false } };
   if (is('electrical')) return { C: Generator };
   if (is('ecs')) return { C: ECS };
-  if (is('airframe') || is('structure') || is('wing_panel')) return { C: Structure };
+  if (is('wing_panel')) return { C: WingPanel };
+  if (is('airframe') || is('structure')) return { C: Structure };
   return { C: Structure };
 }
 export function internalLabels(entry) {

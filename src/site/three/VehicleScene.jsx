@@ -202,9 +202,9 @@ const partAt = (pp, e, out) => out.copy(pp.home).lerp(pp.centre, e);
  * Status dots: one per monitored part, green / amber / red by its verdict, with a soft pulsing halo.
  * They are also how the systems without a shape of their own (avionics, fuel, hydraulics...) are clicked.
  */
-function Dots({ prep, parts, eRef, showRef, hidden, onSelect, onHover }) {
+function Dots({ prep, parts, eRef, showRef, hidden, onSelect, onHover, only }) {
   const R = prep.radius;
-  const ids = Object.keys(prep.parts);
+  const ids = Object.keys(prep.parts).filter((id) => !only || only.has(id));
   const refs = useRef({});
   const mats = useMemo(() => Object.fromEntries(ids.map((id) => {
     const col = new THREE.Color(parts[id] ? healthColor(parts[id].health, parts[id].verdict) : '#94a3b8');
@@ -290,7 +290,7 @@ function ownSize(root) {
 }
 const tmpM = new THREE.Matrix4(), tmpM2 = new THREE.Matrix4();
 
-function Detailed({ prep, parts, eRef, showRef, look }) {
+function Detailed({ prep, parts, eRef, showRef, look, hide = null, onSelect, onHover }) {
   const items = useMemo(() => Object.keys(prep.parts).filter(swaps).map((id) => ({ id, entry: internalFor(look, id) })), [look, prep]);
   const refs = useRef([]), own = useRef([]);
   useFrame(() => {
@@ -316,19 +316,26 @@ function Detailed({ prep, parts, eRef, showRef, look }) {
           const across = Math.min(sz.y / Math.max(m.y, 1e-3), sz.z / Math.max(m.z, 1e-3)) * 1.15;
           const along = Math.min(sz.x / Math.max(m.x, 1e-3), across * 3);
           g.scale.set(along * k, across * k, across * k);
-          g.visible = on > 0.02;
+          g.visible = on > 0.02 && !hide;
           return;
         }
         if (m) fit = Math.min(fit, Math.min(sz.x / Math.max(m.x, 1e-3), sz.y / Math.max(m.y, 1e-3), sz.z / Math.max(m.z, 1e-3)) * 1.5);
       }
       g.scale.setScalar(fit * k);
-      g.visible = on > 0.02;
+      g.visible = on > 0.02 && !hide;   // (a part opened in the inspector shows its own close-up; the rest step back)
     });
   });
   return items.map(({ id, entry: { C, p = {} } }, i) => {
     const subs = parts[id]?.subparts || {};
     const colour = (key) => (subs[key] != null ? healthColor(subs[key]) : null);
-    return <group key={id} ref={(el) => (refs.current[i] = el)}><C c={colour} {...p} /></group>;
+    return (
+      <group key={id} ref={(el) => (refs.current[i] = el)}
+        onClick={onSelect && ((ev) => { ev.stopPropagation(); onSelect(id); })}
+        onPointerOver={onHover && ((ev) => { ev.stopPropagation(); onHover(id); document.body.style.cursor = 'pointer'; })}
+        onPointerOut={onHover && (() => { onHover(null); document.body.style.cursor = ''; })}>
+        <C c={colour} {...p} />
+      </group>
+    );
   });
 }
 
@@ -433,7 +440,11 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
   }, [prep, camera, R]);
   useEffect(() => { focusN.current = 110; }, [sel, inspect, focus]);
   const show = inspect ? sel : focus;            // the part opened up to show its internals
-  const swapIds = useMemo(() => new Set(dots && !inspect ? Object.keys(prep.parts).filter(swaps) : []), [dots, inspect, prep]);
+  // the systems shown as their detailed models, on the home page and in the inspector alike
+  const swapIds = useMemo(() => new Set(dots || inspect ? Object.keys(prep.parts).filter(swaps) : []), [dots, inspect, prep]);
+  // inspector: a status dot only where there is nothing real to see or click (the airframe hotspot, a volume
+  // without a detailed model); every other part is its own model
+  const dotIds = useMemo(() => new Set(Object.keys(prep.parts).filter((id) => !swapIds.has(id) && (prep.parts[id].zone || id === 'airframe'))), [prep, swapIds]);
 
   const off = useRef({ x: 0, y: 0 });
   useFrame((state, dt) => {
@@ -474,7 +485,7 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
           return;
         }
         const d = parts[id];
-        const swap = swapIds.has(id);                 // home page: its detailed model takes its place
+        const swap = swapIds.has(id);                 // its detailed model takes its place
         const hc = d ? healthColor(d.health, d.verdict) : '#94a3b8';
         const isSel = id === sel, isHover = id === hover, isFlag = flagged.includes(id), isShown = id === show && !!look;
         // the airframe skin of a real model is a component too: in the inspector it is the ghost
@@ -552,8 +563,9 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
             onPointerMove={(ev) => { ev.stopPropagation(); const id = pick(ev); if (id !== hover) onHover(id); document.body.style.cursor = id ? 'pointer' : ''; }}
             onPointerOut={() => { onHover(null); document.body.style.cursor = ''; }}
             onClick={(ev) => { ev.stopPropagation(); const id = pick(ev); if (id) onSelect(id); }} />
-          {inspect && <Dots prep={prep} parts={parts} eRef={eRef} showRef={showRef} hidden={show} onSelect={onSelect} onHover={onHover} />}
+          {inspect && <Dots prep={prep} parts={parts} eRef={eRef} showRef={showRef} hidden={show} onSelect={onSelect} onHover={onHover} only={dotIds} />}
           {dots && !inspect && <Detailed prep={prep} parts={parts} eRef={eRef} showRef={showRef} look={look} />}
+          {inspect && look && <Detailed prep={prep} parts={parts} eRef={eRef} showRef={showRef} look={look} hide={show} onSelect={onSelect} onHover={onHover} />}
           {dots && !inspect && <Callouts prep={prep} parts={parts} eRef={eRef} showRef={showRef} look={look} onSelect={onSelect} avoid=".hero3d-copy" />}
           {look && show && prep.parts[show] && <Internal key={show} look={look} id={show} part={parts[show]} at={posOf(show)} r={prep.parts[show].radius} floor={prep.floor - R * 0.27} />}
           {selInfo && posOf(sel) && !look && (
