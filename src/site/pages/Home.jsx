@@ -31,9 +31,9 @@ function Ticker() {
   );
 }
 
-// Hero: the product itself. A live digital twin cycles through the four aircraft classes, opening into
+// Hero: the product itself. A live digital twin cycles through the five aircraft classes, opening into
 // its parts and lighting up by health, next to the headline.
-const HERO_LOOKS = [['helicopter', 'Helicopters'], ['fighter_twin_engine', 'Fighter jets'], ['male_uav', 'UAVs'], ['quadcopter', 'Drones']];
+const HERO_LOOKS = [['helicopter', 'Helicopters'], ['fighter_twin_engine', 'Fighter jets'], ['airliner_narrowbody', 'Airliners'], ['male_uav', 'UAVs'], ['quadcopter', 'Drones']];
 const CYCLE_S = LOOP_S;
 
 /** true while the element is on screen (the 3D stops rendering when it is not) */
@@ -58,8 +58,13 @@ function Hero() {
     const place = () => { const w = innerWidth; insets.current = w > 980 ? { x: -w * 0.25, y: 0, zoom: 1.22 } : { x: 0, y: -innerHeight * 0.12, zoom: 1.35 }; };
     place(); addEventListener('resize', place);
     let raf; const t0 = performance.now();
+    // development only: ?twin=<look>&at=<seconds> holds the hero on one aircraft at one moment of its loop
+    const q = import.meta.env.DEV ? new URLSearchParams(location.search) : null;
+    const pin = q?.get('twin') ? 0 : -1;
+    const at = q?.get('at') != null ? Number(q.get('at')) : null;
     const step = (now) => {
-      const s = Math.max(0, (now - t0) / 1000);   // the first frame's time can be just before t0
+      let s = Math.max(0, (now - t0) / 1000);   // the first frame's time can be just before t0
+      if (pin >= 0) s = pin * CYCLE_S + (at ?? s % CYCLE_S);
       const st = loopAt(s);
       phase.current = st.p;
       setStage((v) => (v === st.label ? v : st.label));
@@ -69,7 +74,8 @@ function Hero() {
     raf = requestAnimationFrame(step);
     return () => { cancelAnimationFrame(raf); removeEventListener('resize', place); };
   }, []);
-  const [look, label] = HERO_LOOKS[k];
+  const forced = import.meta.env.DEV ? new URLSearchParams(location.search).get('twin') : null;
+  const [look, label] = forced ? [forced, forced] : HERO_LOOKS[k];
   return (
     <section className="hero3d" ref={ref}>
       <div className="hero3d-canvas">

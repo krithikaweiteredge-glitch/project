@@ -67,8 +67,9 @@ function prepare(model) {
     const out = comp ? dir.multiplyScalar(radius * 0.3).add(d.clone().multiplyScalar(0.42)).add(new THREE.Vector3(0, radius * 0.07, 0)) : d.clone().multiplyScalar(0.1);
     pieces.push({ obj: child, home: child.position.clone(), out, comp });
     if (comp) {
-      const e = (comps[comp] ??= { box: new THREE.Box3(), home: new THREE.Box3() });
+      const e = (comps[comp] ??= { box: new THREE.Box3(), home: new THREE.Box3(), zone: true });
       e.box.union(b.clone().translate(out)); e.home.union(b);
+      child.traverse((o) => { if (o.isMesh && !o.userData.zone) e.zone = false; });   // only a volume: a system inside the shell
     }
     child.traverse((o) => {
       if (!o.isMesh) return;
@@ -89,7 +90,7 @@ function prepare(model) {
   }
   const parts = Object.fromEntries(Object.entries(comps).map(([k, e]) => {
     const c = e.box.getCenter(new THREE.Vector3()), s = e.box.getSize(new THREE.Vector3()).length() / 2;
-    return [k, { centre: c, home: e.home.getCenter(new THREE.Vector3()), size: e.home.getSize(new THREE.Vector3()), radius: Math.max(s, radius * 0.06) }];
+    return [k, { centre: c, home: e.home.getCenter(new THREE.Vector3()), size: e.home.getSize(new THREE.Vector3()), radius: Math.max(s, radius * 0.06), zone: e.zone }];
   }));
   const exploded = pieces.reduce((r, p) => Math.max(r, new THREE.Box3().setFromObject(p.obj).getCenter(new THREE.Vector3()).add(p.out).sub(centre).length()), radius);
   // x-ray outlines: crisp edge lines for the shell, so the see-through airframe still reads as an aircraft
@@ -98,13 +99,27 @@ function prepare(model) {
   for (const pc of pieces) pc.obj.traverse((o) => {
     if (!o.isMesh || o.userData.hiddenZone || !(o.userData.body || o.userData.component === 'airframe')) return;
     const pos = o.geometry.attributes.position;
-    if (!pos || pos.count > 60000) return;
-    const line = new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 28), edgeMat);
+    // real models are often one large mesh for the whole airframe: outline those too (the edge pass is linear)
+    if (!pos || pos.count > 900000) return;
+    // the code-built shells are smooth lofts with few creases: a finer angle draws their frames and panel lines
+    const line = new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, o.userData.keep ? 28 : 11), edgeMat);
     line.raycast = () => {};
     line.userData.edge = true;
     o.add(line); edges.push(line);
   });
   return { pieces, centre, radius, exploded, parts, floor: box.min.y, edgeMat };
+}
+
+/** home page: how far the camera moves in once the shell is see-through, for aircraft whose rotor or wingspan
+ *  sets the framing (their interior would otherwise sit small in the middle of the view) */
+const XRAY_ZOOM = { helicopter: 0.78, male_uav: 0.72, airliner_narrowbody: 0.9 };
+
+/** a see-through shell loses its shine as it fades, or its reflections read as a milky film over the parts inside */
+function dimShine(o, m) {
+  o.userData.glint ??= [m.envMapIntensity ?? 1, m.clearcoat ?? 0];
+  const k = THREE.MathUtils.clamp(m.opacity * 1.6, 0.02, 1);   // never exactly 0: a clearcoat of 0 recompiles the shader
+  m.envMapIntensity = o.userData.glint[0] * k;
+  if ('clearcoat' in m) m.clearcoat = o.userData.glint[1] * k;
 }
 
 const tmp = new THREE.Color(), tmpV = new THREE.Vector3(), white = new THREE.Color('#ffffff'), XRAY = new THREE.Color('#b9cde0');
@@ -220,9 +235,9 @@ const CALLOUTS = {
 };
 
 /**
- * Home page: the labelled parts shown as their detailed models (the same ones the inspector opens) in place of
- * their simple shapes, sized to the part, while the aircraft is apart. A drone battery shows its cells and wiring,
- * an engine its compressor and turbine, instead of a box.
+ * Home page: every system shown as its detailed model (the same ones the inspector opens) in place of its simple
+ * shape or volume, sized to the space it fills, while the shell is see-through. A drone battery shows its cells and
+ * wiring, an engine its compressor and turbine, a flight controller its boards, instead of a box.
  */
 /** parts drawn as plain shapes (a box, a cylinder, a zone) that get their detailed model on the home page; rotors,
  *  propellers, skids, gear and shafts already have their real shape and stay as they are */
@@ -230,16 +245,39 @@ const SWAP = ['engine', 'apu', 'motor', 'esc', 'inverter', 'battery', 'avionics'
   'main_gearbox', 'tail_gearbox', 'gearbox', 'flight_actuator', 'actuator'];
 const swaps = (id) => SWAP.some((p) => id === p || id.startsWith(p + '_'));
 
+/** the size of a detailed model in its own units (at scale 1, unrotated), measured from its meshes */
+function ownSize(root) {
+  root.updateMatrixWorld(true);
+  const inv = tmpM.copy(root.matrixWorld).invert(), box = new THREE.Box3(), b = new THREE.Box3();
+  root.traverse((o) => {
+    if (!o.isMesh) return;
+    if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
+    box.union(b.copy(o.geometry.boundingBox).applyMatrix4(tmpM2.multiplyMatrices(inv, o.matrixWorld)));
+  });
+  return box.isEmpty() ? null : box.getSize(new THREE.Vector3());   // (in the root's own frame, so its scale drops out)
+}
+const tmpM = new THREE.Matrix4(), tmpM2 = new THREE.Matrix4();
+
 function Detailed({ prep, parts, eRef, showRef, look }) {
-  const items = useMemo(() => (CALLOUTS[look] || []).filter(([id]) => prep.parts[id] && swaps(id)).map(([id]) => ({ id, entry: internalFor(look, id) })), [look, prep]);
-  const refs = useRef([]);
+  const items = useMemo(() => Object.keys(prep.parts).filter(swaps).map((id) => ({ id, entry: internalFor(look, id) })), [look, prep]);
+  const refs = useRef([]), own = useRef([]);
   useFrame(() => {
     const on = showRef.current;
     items.forEach(({ id }, i) => {
       const g = refs.current[i]; if (!g) return;
-      partAt(prep.parts[id], eRef.current, g.position);
-      // fit the detailed model (~2.2 units across) into the real space of the part it replaces
-      const sz = prep.parts[id].size, fit = Math.max(sz.x, sz.y, sz.z) / 2.2;
+      const pp = prep.parts[id];
+      partAt(pp, eRef.current, g.position);
+      // fit the detailed model (~2.2 units across) into the real space of the part it replaces; a system that is
+      // only a volume inside the shell (avionics, fuel, a battery bay...) is kept inside that volume
+      const sz = pp.size;
+      let fit = Math.max(sz.x, sz.y, sz.z) / 2.2;
+      // an actuator drives its surface from one end: sized like an actuator, not stretched to a long aileron
+      if (id.includes('actuator')) fit = Math.min(fit, (prep.radius * 0.18) / 2.2);
+      if (pp.zone) {
+        own.current[i] ??= ownSize(g);
+        const m = own.current[i];
+        if (m) fit = Math.min(fit, Math.min(sz.x / Math.max(m.x, 1e-3), sz.y / Math.max(m.y, 1e-3), sz.z / Math.max(m.z, 1e-3)) * 1.5);
+      }
       g.scale.setScalar(fit * Math.max(on, 0.001));
       g.visible = on > 0.02;
     });
@@ -352,7 +390,7 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
   }, [prep, camera, R]);
   useEffect(() => { focusN.current = 110; }, [sel, inspect, focus]);
   const show = inspect ? sel : focus;            // the part opened up to show its internals
-  const swapIds = useMemo(() => new Set(dots && !inspect ? (CALLOUTS[look] || []).map(([id]) => id).filter(swaps) : []), [dots, inspect, look]);
+  const swapIds = useMemo(() => new Set(dots && !inspect ? Object.keys(prep.parts).filter(swaps) : []), [dots, inspect, prep]);
 
   const off = useRef({ x: 0, y: 0 });
   useFrame((state, dt) => {
@@ -386,6 +424,7 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
           m.opacity = THREE.MathUtils.lerp(m.opacity, inspect ? (only || (show && !frameOpen) ? 0 : 0.16) : (1 - 0.88 * rev) * (show ? 0.4 : 1), 0.12);
           if (inspect) m.color.lerp(XRAY, 0.2);
           m.depthWrite = m.opacity > 0.6;
+          dimShine(o, m);
           o.visible = !inspect || m.opacity > 0.01;
           if (o.userData.keep || inspect) { const want = m.opacity < 0.98 || !!o.userData.origTransparent; if (m.transparent !== want) { m.transparent = want; m.needsUpdate = true; } }
           return;
@@ -408,6 +447,7 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
         m.opacity = THREE.MathUtils.lerp(m.opacity, (isShown && !skin) || (skin && (only || (show && !frameOpen))) ? 0 : skin ? 0.16 : shell ? shellFade : ghost ? (inspect ? 0 : 0.12) : swap ? 1 - c : 1, inspect && ghost ? 0.25 : 0.15);
         o.visible = m.opacity > 0.02;
         m.depthWrite = m.opacity > 0.6;
+        if (shell) dimShine(o, m);
         const want = m.opacity < 0.98 || !!o.userData.origTransparent;
         if (m.transparent !== want) { m.transparent = want; m.needsUpdate = true; }
         if (ghost) m.color.lerp(white, 0.4);
@@ -419,6 +459,7 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
     if (ctl) {
       const wantTarget = tmpV.copy(prep.centre);
       let wantDist = R * (3.15 + (prep.exploded / R - 1) * 1.55 * e) * (insets.current.zoom || 1);
+      if (dots && !inspect) wantDist *= THREE.MathUtils.lerp(1, XRAY_ZOOM[look] ?? 1, c);   // move in on the interior as the shell clears
       if (show && prep.parts[show]) {
         model.group.localToWorld(partAt(prep.parts[show], e, wantTarget));
         wantDist = THREE.MathUtils.clamp(prep.parts[show].radius * (show === 'airframe' && STRUCT_SPOT[look] ? 17 : look ? (inspect ? 9 : 6.2) : 9), R * 0.35, R * 2.8);   // the airframe hotspot is shown in context

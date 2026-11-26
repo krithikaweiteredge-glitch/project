@@ -1,26 +1,34 @@
-// The quadcopter: "DJI Matrice M300 RTK + DJI Zenmuse P1" by FCCKudo (Sketchfab), CC BY 4.0 - public/models/m300
-// (a 3D scan; texture reduced to 2048 px for the web). The scan is one mesh that includes the landing pad and
-// ground it was scanned on: those are dropped, and the drone is split into IVHM's 14 monitored parts by position.
-// Raw model coordinates (see realsplit.js): x and y across, z up; the drone sits on the pad at z -0.07.
+// The quadcopter: "Quadcopter DJI Matrice 300 RTK" by 19vitali99 (Sketchfab), CC BY 4.0 - public/models/m300.
+// A modelled (not scanned) M300 with its propellers out. For the web the carry case it stands on is dropped and the
+// mesh simplified (888k -> 103k triangles, meshoptimizer). The body, arms, legs and camera are the see-through
+// shell; the four motor pods and propellers are monitored parts of their own; the speed controllers in the arms,
+// the batteries on top and the flight controller in the body are volumes inside the shell.
+// Raw model coordinates (see realsplit.js): x across (-x is the drone's right), y along (nose, the camera side, at
+// -y), z up; the legs stand at z 4.1, the arms are at z 6.6-7.9, the body top at z 9.
 import { splitModel } from './realsplit';
 
 export const M300_URL = './models/m300/scene.gltf';
 
-// the four arms, by direction seen from above (degrees, measured from the scan)
-const ARMS = [-105, -25, 85, 170];
+// motor pod centres, numbered like the site's quadcopter: 1 front-right, 2 rear-right, 3 rear-left, 4 front-left
+const PODS = [[-3.8, -3.0], [-3.4, 3.36], [3.41, 3.37], [3.8, -3.0]];
+const nearest = (x, y) => PODS.reduce((b, p, i) => (Math.hypot(x - p[0], y - p[1]) < Math.hypot(x - PODS[b][0], y - PODS[b][1]) ? i : b), 0);
 
-function classify(x, y, z) {
-  if (z < -0.07) return false;                                   // the landing pad and the ground: not part of the drone
-  const r = Math.hypot(x, y), a = (Math.atan2(-y, x) * 180) / Math.PI;
-  if (r < 0.22) {
-    if (z > 0.15) return 'battery';                              // the battery slots on top
-    if (z < 0.0) return null;                                    // landing legs and the Zenmuse P1 camera: structure
-    return 'avionics';                                           // the body: flight controller and electronics
-  }
-  const k = ARMS.reduce((best, c, i) => (Math.abs(((a - c + 540) % 360) - 180) < Math.abs(((a - ARMS[best] + 540) % 360) - 180) ? i : best), 0) + 1;
-  // the motor is the compact pod at the arm tip; the folded propeller blades hang beside and below it
-  if (r >= 0.40) return r < 0.50 && z > 0.02 && z < 0.14 ? `motor_${k}` : `propeller_${k}`;
-  return `esc_${k}`;                                             // the arm, where the speed controller sits
+function classify(x, y, z, material) {
+  const k = nearest(x, y), [px, py] = PODS[k], d = Math.hypot(x - px, y - py), r = Math.hypot(x, y);
+  if (material === 'lambert20' && r > 2.3) return `propeller_${k + 1}`;   // the blades
+  if (d < 0.62 && z > 6.5) return `motor_${k + 1}`;                        // the motor pod at the arm tip
+  return null;                                                              // body, arms, legs, camera: the shell
 }
 
-export const composeM300 = (scene) => splitModel(scene, { classify, rawLength: 1, length: 2.1 });
+// volumes inside the shell: [centre], [across, length, up]
+const zone = (k) => {
+  const [px, py] = PODS[k];
+  return [[px * 0.55, py * 0.55, 7.05], [0.55, 0.55, 0.3]];               // speed controller, inside the arm
+};
+const ZONES = {
+  esc_1: zone(0), esc_2: zone(1), esc_3: zone(2), esc_4: zone(3),
+  battery: [[0, -0.3, 8.35], [2.2, 1.6, 0.9]],                               // the two TB60 batteries on top
+  avionics: [[0, 0.3, 7.4], [2.0, 2.4, 0.6]],                                // flight controller and electronics
+};
+
+export const composeM300 = (scene) => splitModel(scene, { classify, zones: ZONES, rawLength: 11, length: 2.4 });
