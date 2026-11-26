@@ -48,8 +48,8 @@ const STRUCT_SPOT = {
   helicopter: [[-1.85, 0.55, 0], 0.42],                // tail-boom-to-cabin joint
   fighter_single_engine: [[-0.6, -0.05, 0.5], 0.4],    // wing-root attachment
   fighter_twin_engine: [[-0.8, -0.05, 1.05], 0.45],    // wing-root attachment
-  male_uav: [[0.4, 0.26, 1.05], 0.3],                  // wing-to-boom junction
-  airliner_narrowbody: [[0.2, -0.3, 0.62], 0.55],      // wing-to-body joint
+  male_uav: [[1.22, 0.37, 0.61], 0.3],                 // wing root (Rustom-2)
+  airliner_narrowbody: [[0.34, -0.84, 0.67], 0.55],    // wing-to-body joint (A321)
 };
 
 function prepare(model) {
@@ -112,7 +112,7 @@ function prepare(model) {
 
 /** home page: how far the camera moves in once the shell is see-through, for aircraft whose rotor or wingspan
  *  sets the framing (their interior would otherwise sit small in the middle of the view) */
-const XRAY_ZOOM = { helicopter: 0.78, male_uav: 0.72, airliner_narrowbody: 0.9 };
+const XRAY_ZOOM = { helicopter: 0.78, male_uav: 0.84, airliner_narrowbody: 0.9 };
 
 /** a see-through shell loses its shine as it fades, or its reflections read as a milky film over the parts inside */
 function dimShine(o, m) {
@@ -226,7 +226,7 @@ const CALLOUTS = {
     ['landing_gear_1', 'Nose gear'], ['landing_gear_2', 'Main gear'], ['fuel', 'Fuel system']],
   fighter_twin_engine: [['engine_1', 'AL-31FP turbofan'], ['flight_actuator_3', 'All-moving tailplane'], ['flight_actuator_5', 'Rudder actuator'],
     ['flight_actuator_1', 'Aileron actuator'], ['landing_gear_1', 'Nose gear'], ['landing_gear_2', 'Main gear'], ['apu', 'APU']],
-  male_uav: [['engine', 'Rotax 914 engine'], ['propeller', 'Pusher propeller'], ['actuator_1', 'Aileron actuator'], ['actuator_3', 'Elevator actuator'],
+  male_uav: [['engine_1', 'Rotax 914 engine'], ['propeller_1', 'Propeller'], ['actuator_1', 'Aileron actuator'], ['actuator_3', 'Elevator actuator'],
     ['actuator_4', 'Rudder actuator'], ['landing_gear', 'Landing gear'], ['avionics', 'Avionics']],
   quadcopter: [['motor_1', 'Brushless motor'], ['propeller_2', 'Propeller'], ['esc_3', 'Speed controller'], ['battery', 'Battery pack'], ['avionics', 'Flight controller']],
   hexacopter: [['motor_1', 'Brushless motor'], ['propeller_3', 'Propeller'], ['esc_4', 'Speed controller'], ['battery_1', 'Battery pack'], ['avionics', 'Flight controller']],

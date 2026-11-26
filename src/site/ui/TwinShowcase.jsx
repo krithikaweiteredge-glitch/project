@@ -12,6 +12,8 @@ import { composePredator, PREDATOR_URL } from '../three/predator';
 import { composeSu30, SU30_URL } from '../three/su30';
 import { composeTejas, TEJAS_URL } from '../three/tejas';
 import { composeM300, M300_URL } from '../three/m300';
+import { composeA321, A321_URL } from '../three/a321';
+import { composeRustom, RUSTOM_URL } from '../three/rustom';
 import VehicleScene from '../three/VehicleScene';
 import { useInView } from './motion';
 
@@ -21,7 +23,7 @@ const TABS = [
 const RANK = { 'NO-GO': 0, CAUTION: 1, SAFE: 3 };
 
 // the part each class opens up to show its internals during the loop
-export const FOCUS = { helicopter: 'engine_1', fighter_twin_engine: 'engine_1', fighter_single_engine: 'engine', male_uav: 'engine', quadcopter: 'motor_1', hexacopter: 'motor_1' };
+export const FOCUS = { helicopter: 'engine_1', fighter_twin_engine: 'engine_1', fighter_single_engine: 'engine', male_uav: 'engine_1', quadcopter: 'motor_1', hexacopter: 'motor_1' };
 export const LOOP_S = 14;
 /** where the home loop is at time t (s): assembled -> apart -> judged by health (status dots) -> together */
 export function loopAt(t) {
@@ -50,6 +52,8 @@ export function BuiltTwin({ look, phase, insets, focus }) {
   if (look === 'fighter_twin_engine') return <Su30Twin phase={phase} insets={insets} focus={focus} />;   // the real Su-30MKI
   if (look === 'fighter_single_engine') return <TejasTwin phase={phase} insets={insets} focus={focus} />; // the real Tejas
   if (look === 'quadcopter') return <M300Twin phase={phase} insets={insets} focus={focus} />;              // the real Matrice 300
+  if (look === 'airliner_narrowbody') return <RealTwin look={look} url={A321_URL} compose={composeA321} phase={phase} insets={insets} focus={focus} />;   // Air India A321
+  if (look === 'male_uav') return <RealTwin look={look} url={RUSTOM_URL} compose={composeRustom} phase={phase} insets={insets} focus={focus} />;              // DRDO Rustom-2
   return <ShapeTwin look={look} phase={phase} insets={insets} focus={focus} />;
 }
 function Su30Twin({ phase, insets, focus }) {
@@ -66,6 +70,12 @@ function M300Twin({ phase, insets, focus }) {
   const { scene } = useGLTF(M300_URL);
   const model = useMemo(() => composeM300(scene), [scene]);
   return <Twin look="quadcopter" model={model} phase={phase} insets={insets} focus={focus} />;
+}
+/** a real model split into IVHM's parts by its compose function */
+function RealTwin({ look, url, compose, phase, insets, focus }) {
+  const { scene } = useGLTF(url);
+  const model = useMemo(() => compose(scene), [scene, compose]);
+  return <Twin look={look} model={model} phase={phase} insets={insets} focus={focus} />;
 }
 function ShapeTwin({ look, phase, insets, focus }) {
   const model = useMemo(() => buildModel(look, []), [look]);

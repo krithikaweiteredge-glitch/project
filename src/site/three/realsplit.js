@@ -15,14 +15,16 @@ import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeom
  * @param zones      { partId: [[x, y, z] centre, [across, length, up] size] } volumes for systems inside
  * @param rawLength  the model's nose-to-tail length in its own units
  * @param length     the length to give it on the site
+ * @param axes       optional Matrix4 turning a model saved in other axes into the raw frame above (a rotation)
  */
-export function splitModel(scene, { classify, zones = {}, rawLength, length }) {
+export function splitModel(scene, { classify, zones = {}, rawLength, length, axes }) {
   const SCALE = length / rawLength;
   const toSite = new THREE.Matrix4().set(0, -SCALE, 0, 0, 0, 0, SCALE, 0, -SCALE, 0, 0, 0, 0, 0, 0, 1);
   const root = scene.clone(true);
   root.updateMatrixWorld(true);
   const base = root.getObjectByName('Sketchfab_model');
   const raw = base ? base.matrixWorld.clone().invert() : new THREE.Matrix4();
+  if (axes) raw.premultiply(axes);
   const group = new THREE.Group(), parts = {}, buckets = new Map();
   const v = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
 
@@ -30,7 +32,7 @@ export function splitModel(scene, { classify, zones = {}, rawLength, length }) {
     if (!o.isMesh) return;
     const geo = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone();
     geo.applyMatrix4(raw.clone().multiply(o.matrixWorld));
-    const pos = geo.attributes.position, nor = geo.attributes.normal, uv = geo.attributes.uv, tan = geo.attributes.tangent;
+    const pos = geo.attributes.position, nor = geo.attributes.normal, uv = geo.attributes.uv, tan = geo.attributes.tangent, col = geo.attributes.color;
     const mat = Array.isArray(o.material) ? o.material[0] : o.material;
     for (let i = 0; i < pos.count; i += 3) {
       for (let k = 0; k < 3; k++) v[k].fromBufferAttribute(pos, i + k);
@@ -38,12 +40,13 @@ export function splitModel(scene, { classify, zones = {}, rawLength, length }) {
       if (comp === false) continue;
       const key = `${comp || '-'}|${mat.uuid}`;
       let b = buckets.get(key);
-      if (!b) buckets.set(key, (b = { comp, mat, p: [], n: [], t: [], g: [] }));
+      if (!b) buckets.set(key, (b = { comp, mat, p: [], n: [], t: [], g: [], c: [], cs: col?.itemSize || 0 }));
       for (let k = 0; k < 3; k++) {
         b.p.push(pos.getX(i + k), pos.getY(i + k), pos.getZ(i + k));
         if (nor) b.n.push(nor.getX(i + k), nor.getY(i + k), nor.getZ(i + k));
         if (uv) b.t.push(uv.getX(i + k), uv.getY(i + k));
         if (tan) b.g.push(tan.getX(i + k), tan.getY(i + k), tan.getZ(i + k), tan.getW(i + k));
+        if (col) for (let j = 0; j < col.itemSize; j++) b.c.push(col.getComponent(i + k, j));   // vertex colours (a livery)
       }
     }
   });
@@ -54,12 +57,13 @@ export function splitModel(scene, { classify, zones = {}, rawLength, length }) {
     if (!holders[comp]) { const h = new THREE.Group(); h.userData.component = comp; group.add(h); holders[comp] = h; }
     return holders[comp];
   };
-  for (const { comp, mat, p, n, t, g } of buckets.values()) {
+  for (const { comp, mat, p, n, t, g, c, cs } of buckets.values()) {
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute(p, 3));
     if (n.length) geo.setAttribute('normal', new THREE.Float32BufferAttribute(n, 3)); else geo.computeVertexNormals();
     if (t.length) geo.setAttribute('uv', new THREE.Float32BufferAttribute(t, 2));
     if (g.length) geo.setAttribute('tangent', new THREE.Float32BufferAttribute(g, 4));
+    if (c.length) geo.setAttribute('color', new THREE.Float32BufferAttribute(c, cs));
     geo.applyMatrix4(toSite);
     const m = new THREE.Mesh(geo, mat.clone());
     m.userData = { keep: true, base: mat.color.getHex(), mat: 'paint', ...(comp ? { component: comp } : {}) };

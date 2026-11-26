@@ -13,17 +13,22 @@ import { composeLaunch, composeSatellite, DRACO, NASA } from '../three/realmodel
 import { composeSu30, SU30_URL } from '../three/su30';
 import { composeTejas, TEJAS_URL } from '../three/tejas';
 import { composeM300, M300_URL } from '../three/m300';
+import { composeA321, A321_URL } from '../three/a321';
+import { composeRustom, RUSTOM_URL } from '../three/rustom';
 import Inspector from '../ui/Inspector';
 
 const RANK = { 'NO-GO': 0, NO_GO: 0, CAUTION: 1, UNKNOWN: 2, SAFE: 3, GO: 3 };
 const isFlag = (v) => v === 'NO-GO' || v === 'NO_GO' || v === 'CAUTION';
 
-/** the vehicle's 3D model: built in code to match the aircraft in its photo (Heron, Tejas, Su-30MKI, Dhruv, A320, Matrice) */
+/** the vehicle's 3D model: a real model where there is one (Su-30MKI, Tejas, Air India A321, Rustom-2, Matrice 300),
+ *  otherwise built in code to match the aircraft in its photo (Dhruv) */
 export default function Vehicle({ look }) {
   const l = VEHICLES[look] ? look : 'quadcopter';
   if (l === 'fighter_twin_engine') return <Su30Vehicle />;
   if (l === 'fighter_single_engine') return <TejasVehicle />;
   if (l === 'quadcopter') return <M300Vehicle />;
+  if (l === 'airliner_narrowbody') return <RealVehicle look={l} url={A321_URL} compose={composeA321} />;
+  if (l === 'male_uav') return <RealVehicle look={l} url={RUSTOM_URL} compose={composeRustom} />;
   if (l === 'satellite') return <HubbleVehicle />;
   if (l === 'launch_vehicle') return <LaunchVehicle />;
   return <BuiltVehicle look={look} />;
@@ -45,6 +50,12 @@ function TejasVehicle() {
   return <VehicleView look="fighter_single_engine" model={model} />;
 }
 
+/** a real model split into IVHM's parts by its compose function */
+function RealVehicle({ look, url, compose }) {
+  const { scene } = useGLTF(url);
+  const model = useMemo(() => compose(scene), [scene, compose]);
+  return <VehicleView look={look} model={model} />;
+}
 function M300Vehicle() {
   const { scene } = useGLTF(M300_URL);
   const model = useMemo(() => composeM300(scene), [scene]);

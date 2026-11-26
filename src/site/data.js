@@ -15,7 +15,7 @@ export const VEHICLES = {
     text: 'Every motor, speed controller and propeller gets its own live twin. IVHM learns how this drone flies when healthy and spots a worn bearing or a chipped prop within a flight.', unit: 'flights' },
   hexacopter: { name: 'Hexacopter', cat: 'drones', tag: 'Six rotors, twice the redundancy, all of it watched.', examples: 'DJI Matrice · heavy-lift and spraying drones',
     text: 'Heavy-lift multirotors carry expensive payloads. IVHM tracks both battery packs and all six drive chains so you know which arm will let you down first.', unit: 'flights' },
-  male_uav: { name: 'MALE UAV', cat: 'uav', tag: 'Twenty hours aloft. One answer before take-off.', examples: 'IAI Heron Mk I · Heron Mk II · Indian Army and IAF',
+  male_uav: { name: 'MALE UAV', cat: 'uav', tag: 'Twenty hours aloft. One answer before take-off.', examples: 'DRDO Rustom-2 (TAPAS-BH-201) · IAI Heron Mk I · Heron Mk II · Indian Army and IAF',
     text: 'Medium-altitude long-endurance UAVs fly missions measured in days. Engine, propeller, control actuators and avionics are judged after every sortie.', unit: 'sorties' },
   fighter_single_engine: { name: 'Fighter (single engine)', cat: 'fighters', tag: 'One engine. No margin for guessing.', examples: 'HAL Tejas Mk1 · Tejas Mk1A',
     text: 'With one engine there is no second chance. Engine, hydraulics, five flight-control actuators, gear, fuel, ECS, power and avionics are judged before every sortie.', unit: 'sorties' },

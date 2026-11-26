@@ -1,0 +1,11 @@
+Model Information:
+* title:	DRDO Rustom 2 UAV
+* source:	https://sketchfab.com/3d-models/drdo-rustom-2-uav-6064f6b27edf47d4832e318c48c6a2ac
+* author:	Priyajit Bera (https://sketchfab.com/priyajitbera)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "DRDO Rustom 2 UAV" (https://sketchfab.com/3d-models/drdo-rustom-2-uav-6064f6b27edf47d4832e318c48c6a2ac) by Priyajit Bera (https://sketchfab.com/priyajitbera) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
