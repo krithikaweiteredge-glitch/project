@@ -21,8 +21,11 @@ function along(y, v) {
   for (let i = 1; i < FY.length; i++) if (y <= FY[i]) return v[i - 1] + ((y - FY[i - 1]) / (FY[i] - FY[i - 1])) * (v[i] - v[i - 1]);
   return v[v.length - 1];
 }
-/** inside the fuselage skin: the cabin (seats, floors, galleys, lining), the cockpit and the holds */
-const inCabin = (x, y, z) => y > -49 && y < 50 && Math.hypot(x, z - along(y, FC)) < 0.94 * along(y, FR);
+/** inside the passenger cabin: the seats, floors, galleys and lining. Only from the cabin's front bulkhead to its
+ *  rear (y -35.5 to 27): the nose, the cockpit with its windscreen and crew seats, and the tail cone with the
+ *  tailplane roots stay, since the skin narrows there faster than a radius cut can follow */
+const CABIN = [-35.5, 27];
+const inCabin = (x, y, z) => y > CABIN[0] && y < CABIN[1] && Math.hypot(x, z - along(y, FC)) < 0.94 * along(y, FR);
 
 const wingTE = (ax) => 2.8 + (ax - 6) * 0.24;            // trailing edge of the wing, measured from the model
 const stabTE = (ax) => 46.4 + (ax - 3) * 0.15;           // trailing edge of the tailplane
