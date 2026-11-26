@@ -125,6 +125,14 @@ body.site .plat-cat-head p { color: var(--ink2); max-width: 520px; font-size: 15
 body.site .ex-img { position: relative; }
 body.site .ex-live { position: absolute; top: 14px; left: 14px; background: rgba(0,0,0,.6); }
 body.site .about .pro-sec { padding-left: 0; padding-right: 0; }
+/* the About page's sections run edge to edge, so its tinted band needs its own inner padding: a card */
+body.site .about .pro-band { padding: clamp(48px, 6vw, 84px) clamp(24px, 4.5vw, 64px); margin: clamp(48px, 6vw, 88px) 0;
+  border: 1px solid var(--line); border-radius: 24px; }
+body.site .about .pro-band .deploy:nth-last-child(-n+2) { border-bottom: 0; padding-bottom: 6px; }
+@media (max-width: 760px) {   /* (the grid turns to one column here) */
+  body.site .about .pro-band { border-radius: 18px; }
+  body.site .about .pro-band .deploy:nth-last-child(2) { border-bottom: 1px solid var(--line); padding-bottom: 30px; }
+}
 body.site .contact-form { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 22px; max-width: 900px; }
 body.site .contact-form label { display: flex; flex-direction: column; gap: 8px; }
 body.site .contact-form label span { font: 600 11px var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--mute); }
@@ -194,3 +202,37 @@ body.site .callout[data-side='l'] .co-tag { transform: translate(calc(-100% - 6p
 body.site .callout .co-tag em { font-style: normal; font-size: 10.5px; color: var(--c); }
 body.site .callout .co-tag:hover { border-color: var(--c); }
 @media (max-width: 600px) { body.site .callout .co-tag { font-size: 10px; padding: 3px 7px; } }
+
+/* ---------- About: subsystem verification and fault-detection accuracy ---------- */
+body.site .qual-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+body.site .qual-badge { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border: 1px solid var(--line2); border-radius: 999px;
+  font: 600 10.5px var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--ink); }
+body.site .qual-badge i { width: 6px; height: 6px; border-radius: 50%; background: var(--safe); box-shadow: 0 0 8px var(--safe); }
+body.site .qual .pro-body b { color: var(--ink); font-weight: 600; }
+body.site .qual-tabs { display: grid; grid-template-columns: 1fr 1fr; margin-top: 8px; border-top: 1px solid var(--line2); border-bottom: 1px solid var(--line); }
+body.site .qual-tabs button { padding: 18px 20px 18px 0; text-align: left; font: 500 15px var(--sans); color: var(--mute); border-bottom: 2px solid transparent;
+  margin-bottom: -1px; transition: color .3s, border-color .4s; }
+body.site .qual-tabs button + button { padding-left: 20px; border-left: 1px solid var(--line); }
+body.site .qual-tabs button span { display: block; font: 600 10.5px var(--sans); letter-spacing: .16em; text-transform: uppercase; margin-bottom: 6px; color: var(--mute); }
+body.site .qual-tabs button:hover { color: var(--ink); }
+body.site .qual-tabs button.on { color: var(--ink); border-bottom-color: var(--ink); }
+body.site .qual-lead { font: 300 14px/1.6 var(--sans); color: var(--ink2); margin: 22px 0 14px; }
+body.site .qual-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--bg1); }
+body.site .qual-scroll:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+body.site .qual-table table { width: 100%; min-width: 980px; border-collapse: collapse; font: 400 13.5px/1.5 var(--sans); }
+body.site .qual-table caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+body.site .qual-table thead th { position: sticky; top: 0; text-align: left; vertical-align: bottom; padding: 14px 16px; background: var(--bg2);
+  font: 600 10.5px/1.4 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--mute); border-bottom: 1px solid var(--line2); }
+body.site .qual-table tbody th, body.site .qual-table td { text-align: left; vertical-align: top; padding: 14px 16px; border-bottom: 1px solid var(--line); color: var(--ink2); }
+body.site .qual-table tbody th { font-weight: 600; color: var(--ink); min-width: 170px; }
+body.site .qual-table tbody tr:last-child > * { border-bottom: 0; }
+body.site .qual-table tbody tr:hover > * { background: color-mix(in srgb, var(--ink) 3%, transparent); }
+body.site .qual-table td.num { color: var(--mute); font-variant-numeric: tabular-nums; width: 36px; }
+body.site .qual-note { margin-top: 28px; padding: 22px 24px; border: 1px solid var(--line2); border-left: 3px solid var(--safe); border-radius: 14px; background: var(--bg1); }
+body.site .qual-note b { display: block; font: 600 14px var(--sans); color: var(--ink); margin-bottom: 8px; }
+body.site .qual-note p { font: 300 14px/1.65 var(--sans); color: var(--ink2); max-width: 900px; }
+body.site .qual-dl { margin-top: 28px; }
+@media (max-width: 720px) {
+  body.site .qual-tabs { grid-template-columns: 1fr; }
+  body.site .qual-tabs button + button { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); }
+}

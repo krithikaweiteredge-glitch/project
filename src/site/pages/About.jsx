@@ -1,7 +1,59 @@
 // About: what IVHM is, how it is proven, and how it is deployed.
+import { useState } from 'react';
 import Reveal from '../ui/Reveal';
 import { Split } from '../ui/motion';
-import { Count, DEPLOY, PROOF } from './Home';
+import { DEPLOY } from './Home';
+import { BENCHMARKS, QUAL_BADGES, QUAL_BASELINE, QUAL_NOTE, QUAL_TITLE, SUBSYSTEMS, downloadQualification } from '../qualification';
+
+/** one results table; column `lead` (the subsystem) is the row header. Scrolls sideways on a narrow screen */
+function QualTable({ t, lead }) {
+  return (
+    <div className="qual-table" role="tabpanel">
+      <p className="qual-lead">{t.lead}</p>
+      <div className="qual-scroll" tabIndex={0} aria-label={t.title}>
+        <table>
+          <caption>{t.title}</caption>
+          <thead><tr>{t.head.map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>
+          <tbody>
+            {t.rows.map((r) => (
+              <tr key={r[0] + r[1]}>
+                {r.map((c, i) => (i === lead ? <th key={i} scope="row">{c}</th> : <td key={i} className={i === 0 && lead === 1 ? 'num' : undefined}>{c}</td>))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/** subsystem verification: the qualification baseline and both result tables, in tabs */
+function Qualification() {
+  const [tab, setTab] = useState(0);
+  const tabs = [[BENCHMARKS, 0], [SUBSYSTEMS, 1]];
+  return (
+    <section className="pro-sec qual">
+      <div className="pro-head split-head">
+        <div>
+          <div className="eyebrow">Validation</div>
+          <Split text={QUAL_TITLE} className="pro-h" />
+          <div className="qual-badges">{QUAL_BADGES.map((b) => <span key={b} className="qual-badge"><i />{b}</span>)}</div>
+        </div>
+        <Reveal delay={120}><p className="pro-body"><b>Level 1 Qualification Baseline:</b> {QUAL_BASELINE}</p></Reveal>
+      </div>
+      <div className="qual-tabs" role="tablist" aria-label="Qualification results">
+        {tabs.map(([t], i) => (
+          <button key={t.tab} role="tab" aria-selected={tab === i} className={tab === i ? 'on' : ''} onClick={() => setTab(i)}>
+            <span>Table {i + 1}</span>{t.tab}
+          </button>
+        ))}
+      </div>
+      <QualTable key={tab} t={tabs[tab][0]} lead={tabs[tab][1]} />
+      <aside className="qual-note"><b>{QUAL_NOTE.title}</b><p>{QUAL_NOTE.text}</p></aside>
+      <button className="btn line qual-dl" onClick={downloadQualification}>Download the evaluation summary (PDF)</button>
+    </section>
+  );
+}
 
 export default function About() {
   return (
@@ -13,21 +65,7 @@ export default function About() {
         <p className="pro-body">IVHM (Integrated Vehicle Health Management) watches every monitored part of a helicopter, fighter jet, UAV, drone or airliner. Each part learns its own normal from its own data; the platform predicts remaining life with an honest range and gives one verdict before every flight: Safe, Caution or No-go, with the service task that clears it.</p>
       </header>
 
-      <section className="pro-sec">
-        <div className="pro-head split-head">
-          <div><div className="eyebrow">Validation</div><Split text="Proven on real data." className="pro-h" /></div>
-          <Reveal delay={120}><p className="pro-body">Every model is checked against public run-to-failure data before it ships, and each result states its limits.</p></Reveal>
-        </div>
-        <div className="proof-grid">
-          {PROOF.map((x, i) => (
-            <Reveal key={x.t} className="proof" delay={i * 90}>
-              <b><Count to={x.n} suffix={x.s || ''} prefix={x.p || ''} decimals={x.dec || 0} /></b>
-              <h4>{x.t}</h4>
-              <p>{x.d}</p>
-            </Reveal>
-          ))}
-        </div>
-      </section>
+      <Qualification />
 
       <section className="pro-sec pro-band">
         <div className="pro-head">
