@@ -101,13 +101,45 @@ function prepare(model) {
     const pos = o.geometry.attributes.position;
     // real models are often one large mesh for the whole airframe: outline those too (the edge pass is linear)
     if (!pos || pos.count > 900000) return;
-    // the code-built shells are smooth lofts with few creases: a finer angle draws their frames and panel lines
-    const line = new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, o.userData.keep ? 28 : 11), edgeMat);
+    // the code-built shells are smooth lofts with few creases: a finer angle draws their frames and panel lines.
+    // Only real creases are drawn: three's EdgesGeometry also draws every open seam, and real models are built from
+    // many separate skin panels, which turns their skin into a dense mesh of lines. A model can set its own angle
+    // and leave areas out (model.edgeAngle, model.edgeSkip)
+    const angle = model.edgeAngle ?? (o.userData.keep ? 28 : 11);
+    const geo = creaseEdges(o.geometry, angle, model.edgeSkip);
+    const line = new THREE.LineSegments(geo, edgeMat);
     line.raycast = () => {};
     line.userData.edge = true;
     o.add(line); edges.push(line);
   });
-  return { pieces, centre, radius, exploded, parts, floor: box.min.y, edgeMat };
+  return { pieces, centre, radius, exploded, parts, floor: box.min.y, edgeMat, edgeLevel: model.edgeOpacity ?? EDGE_LEVEL };
+}
+
+/** how strong the x-ray outline is: a very light blue, so the systems inside stay the focus */
+const EDGE_LEVEL = 0.4;
+
+/** the edges where two faces meet at more than `angle` degrees; unlike EdgesGeometry, open edges (seams between
+ *  separate panels, holes) are left out, and so is any edge whose midpoint `skip(x, y, z)` rejects */
+function creaseEdges(geometry, angle, skip) {
+  const pos = geometry.attributes.position, idx = geometry.index;
+  const n = idx ? idx.count : pos.count, at = (i) => (idx ? idx.getX(i) : i);
+  const cos = Math.cos(THREE.MathUtils.degToRad(angle)), key = (v) => `${Math.round(v.x * 1e4)},${Math.round(v.y * 1e4)},${Math.round(v.z * 1e4)}`;
+  const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), tri = new THREE.Triangle();
+  const seen = new Map(), out = [];
+  for (let i = 0; i + 2 < n; i += 3) {
+    a.fromBufferAttribute(pos, at(i)); b.fromBufferAttribute(pos, at(i + 1)); c.fromBufferAttribute(pos, at(i + 2));
+    const normal = tri.set(a, b, c).getNormal(new THREE.Vector3());
+    const v = [a.clone(), b.clone(), c.clone()], k = v.map(key);
+    for (let j = 0; j < 3; j++) {
+      const p = k[j], q = k[(j + 1) % 3]; if (p === q) continue;
+      const id = p < q ? `${p}|${q}` : `${q}|${p}`, other = seen.get(id);
+      if (!other) { seen.set(id, normal); continue; }
+      const m = v[j], o2 = v[(j + 1) % 3];
+      if (other.dot(normal) <= cos && !skip?.((m.x + o2.x) / 2, (m.y + o2.y) / 2, (m.z + o2.z) / 2)) out.push(v[j].x, v[j].y, v[j].z, v[(j + 1) % 3].x, v[(j + 1) % 3].y, v[(j + 1) % 3].z);
+      seen.delete(id);
+    }
+  }
+  return new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(out, 3));
 }
 
 /** home page: how far the camera moves in once the shell is see-through, for aircraft whose rotor or wingspan
@@ -273,12 +305,23 @@ function Detailed({ prep, parts, eRef, showRef, look }) {
       let fit = Math.max(sz.x, sz.y, sz.z) / 2.2;
       // an actuator drives its surface from one end: sized like an actuator, not stretched to a long aileron
       if (id.includes('actuator')) fit = Math.min(fit, (prep.radius * 0.18) / 2.2);
-      if (pp.zone) {
+      const k = Math.max(on, 0.001);
+      const engine = id === 'engine' || id === 'apu' || id.startsWith('engine_');
+      if (pp.zone || engine) {
         own.current[i] ??= ownSize(g);
         const m = own.current[i];
+        if (m && engine) {
+          // an engine fills its bay along its length but is only as wide as the nacelle: scaled evenly to the bay's
+          // length, a long slim bay (the Su-30's) would grow its fan rings taller than the whole aircraft
+          const across = Math.min(sz.y / Math.max(m.y, 1e-3), sz.z / Math.max(m.z, 1e-3)) * 1.15;
+          const along = Math.min(sz.x / Math.max(m.x, 1e-3), across * 3);
+          g.scale.set(along * k, across * k, across * k);
+          g.visible = on > 0.02;
+          return;
+        }
         if (m) fit = Math.min(fit, Math.min(sz.x / Math.max(m.x, 1e-3), sz.y / Math.max(m.y, 1e-3), sz.z / Math.max(m.z, 1e-3)) * 1.5);
       }
-      g.scale.setScalar(fit * Math.max(on, 0.001));
+      g.scale.setScalar(fit * k);
       g.visible = on > 0.02;
     });
   });
@@ -405,7 +448,8 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
     }
     eRef.current = e;
     const only = inspect && !!explode?.current, frameOpen = show === 'airframe';   // exploded in the inspector: components only, no shell
-    prep.edgeMat.opacity = THREE.MathUtils.lerp(prep.edgeMat.opacity, inspect && !only && (!show || frameOpen) ? (light ? 0.62 : 0.52) : !inspect && dots ? rev * (light ? 0.5 : 0.4) : 0, 0.1);
+    // (EDGE_LEVEL, or model.edgeOpacity, scales it)
+    prep.edgeMat.opacity = THREE.MathUtils.lerp(prep.edgeMat.opacity, prep.edgeLevel * (inspect && !only && (!show || frameOpen) ? (light ? 0.62 : 0.52) : !inspect && dots ? rev * (light ? 0.5 : 0.4) : 0), 0.1);
     prep.edgeMat.color.set(light ? '#3d5f86' : '#8fb3d9'); prep.edgeMat.visible = prep.edgeMat.opacity > 0.01;
     showRef.current = THREE.MathUtils.lerp(showRef.current, inspect ? 1 : dots ? c : 0, 0.1);
     if (spin.current) {

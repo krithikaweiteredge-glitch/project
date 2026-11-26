@@ -1,6 +1,6 @@
 // The airliner: "Air India A321 Exteriors + Interiors" by harshpriyanshu22 (Sketchfab), CC BY 4.0 -
-// public/models/a321. An A320-family jet in Air India colours (vertex colours, no textures) with its cabin modelled
-// inside, so the x-ray shows the seat rows around the systems. Simplified for the web (475k -> 117k triangles).
+// public/models/a321. An A320-family jet in Air India colours (vertex colours, no textures). The model has its
+// cabin modelled too; the seats and lining are dropped so the x-ray shows only the outer skin around the systems.
 // The model is saved Y-up with the nose at +Z and in large units; AXES turns it into the raw frame of realsplit.js
 // (x across, -x the right wing; y along, nose at -y; z up). Positions below are in units of U (1e4 model units):
 // the jet is 98 U long, the wings span 75 U, the fuselage axis is at z -5.5.
@@ -11,12 +11,26 @@ export const A321_URL = './models/a321/scene.gltf';
 const U = 1e4;
 const AXES = new THREE.Matrix4().set(1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1);
 
+// the fuselage's centre height and radius along its length (U), measured from the model: the cabin is close to
+// round, radius 4.6 about z -5.4, tapering at the nose and the tail cone
+const FY = [-49, -48, -46, -44, -42, -38, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50];
+const FC = [-6.1, -6.0, -5.51, -5.3, -5.19, -5.4, -5.08, -4.99, -4.9, -4.69, -4.48, -4.24, -4.03, -4.04, -3.57, -3.22, -3.07, -3.08, -3.0, -2.92, -2.9];
+const FR = [2.5, 3.05, 3.9, 4.33, 4.55, 4.6, 4.57, 4.49, 4.39, 4.19, 3.96, 3.73, 3.48, 3.11, 2.9, 2.66, 2.43, 2.0, 1.69, 1.35, 1.0];
+function along(y, v) {
+  if (y <= FY[0]) return v[0];
+  for (let i = 1; i < FY.length; i++) if (y <= FY[i]) return v[i - 1] + ((y - FY[i - 1]) / (FY[i] - FY[i - 1])) * (v[i] - v[i - 1]);
+  return v[v.length - 1];
+}
+/** inside the fuselage skin: the cabin (seats, floors, galleys, lining), the cockpit and the holds */
+const inCabin = (x, y, z) => y > -49 && y < 50 && Math.hypot(x, z - along(y, FC)) < 0.94 * along(y, FR);
+
 const wingTE = (ax) => 2.8 + (ax - 6) * 0.24;            // trailing edge of the wing, measured from the model
 const stabTE = (ax) => 46.4 + (ax - 3) * 0.15;           // trailing edge of the tailplane
 
 function classify(rx, ry, rz) {
   const x = rx / U, y = ry / U, z = rz / U, ax = Math.abs(x), right = x < 0;
   const side = (r, l) => (right ? r : l);
+  if (inCabin(x, y, z)) return false;                     // no cabin interior: the x-ray shows the systems, not seats
   // engines: the CFM56 nacelles under the wings
   if (Math.hypot(ax - 12.6, z + 10.3) < 3.4 && y > -16.6 && y < -6.4) return side('engine_1', 'engine_2');
   // landing gear: nose gear under the cockpit, main gear under the wing roots
@@ -49,4 +63,15 @@ const Z = {
 };
 const ZONES = Object.fromEntries(Object.entries(Z).map(([k, [c, s]]) => [k, [c.map((v) => v * U), s.map((v) => v * U)]]));
 
-export const composeA321 = (scene) => splitModel(scene, { classify, zones: ZONES, rawLength: 98.3 * U, length: 11, axes: AXES });
+// x-ray lines: a light outline only. Lines where the skin really creases (wings, nacelle lips, doors), not at every
+// seam between the separate panels the model is built from, and none on the tail or along the window rows
+const S = 11 / 98.3;                                       // site units per U
+function edgeSkip(sx, sy, sz) {                            // a point in site units, back to the raw frame in U
+  const x = -sz / S, y = -sx / S, z = sy / S;
+  if (y > 26) return true;                                 // the tail: fin, tailplane, tail cone
+  return y > -44 && Math.abs(x) > 2.5 && z > -5.6 && z < -1.2 && Math.hypot(x, z - along(y, FC)) < 1.08 * along(y, FR) * 1.07;   // window rows
+}
+export const composeA321 = (scene) => ({
+  ...splitModel(scene, { classify, zones: ZONES, rawLength: 98.3 * U, length: 11, axes: AXES }),
+  edgeAngle: 40, edgeSkip,
+});
