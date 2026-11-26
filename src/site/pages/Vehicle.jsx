@@ -94,7 +94,6 @@ function VehicleView({ look, model }) {
   const [sel, setSel] = useState(null);
   const [hover, setHover] = useState(null);
   const [hist, setHist] = useState(null);
-  const [exploded, setExploded] = useState(false);
   useEffect(() => {
     setHist(null);
     if (!sel || !ac?.components?.[sel]) return;
@@ -127,8 +126,6 @@ function VehicleView({ look, model }) {
     setSel((cur) => { const k = cur ? walk.indexOf(cur) : -1; return walk[(k + d + walk.length) % walk.length]; });
   }, [walk]);
   const cmd = useRef({ zoom: 1, reset: false });
-  const explode = useRef(false);
-  useEffect(() => { explode.current = exploded; }, [exploded]);
   useEffect(() => {
     const k = (e) => {
       if (!inView || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
@@ -220,14 +217,13 @@ function VehicleView({ look, model }) {
               onPointerMissed={() => { if (sel) { setSel(null); cmd.current.reset = true; } }}>
               <Suspense fallback={null}>
                 <VehicleScene model={model} parts={parts} progress={progress} inspect sel={sel} hover={hover} insets={insets} look={v.look}
-                  onHover={setHover} onSelect={setSel} flagged={flagged} explode={explode} cmd={cmd} />
+                  onHover={setHover} onSelect={setSel} flagged={flagged} cmd={cmd} />
               </Suspense>
             </Canvas>
             <div className="tools">
               <button onClick={() => { cmd.current.zoom = 0.8; }} aria-label="Zoom in" title="Zoom in">+</button>
               <button onClick={() => { cmd.current.zoom = 1.25; }} aria-label="Zoom out" title="Zoom out">−</button>
               <button onClick={() => { setSel(null); cmd.current.reset = true; }} aria-label="Reset view" title="Reset view (Esc)">⟲</button>
-              <button className={exploded ? 'on' : ''} onClick={() => { setExploded((x) => !x); cmd.current.reset = true; }} title="Take it apart">{exploded ? 'Assemble' : 'Explode'}</button>
             </div>
             <div className="stage-legend"><span style={{ '--c': 'var(--safe)' }}>Safe</span><span style={{ '--c': 'var(--caution)' }}>Caution</span><span style={{ '--c': 'var(--nogo)' }}>No-go</span></div>
             <div className="switcher">

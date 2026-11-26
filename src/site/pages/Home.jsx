@@ -248,7 +248,7 @@ export default function Home() {
         <Reveal>
           <div className="eyebrow plain" style={{ justifyContent: 'center' }}>Digital twin</div>
           <Split text="See your fleet, part by part." className="pro-h center" />
-          <p className="pro-body center">Open a digital twin, take the aircraft apart and inspect the health of every component.</p>
+          <p className="pro-body center">Open a digital twin, see inside the aircraft and inspect the health of every component.</p>
           <div className="pro-cta-row">
             <Magnetic><a className="btn solid" href={href('platforms')}>View platforms</a></Magnetic>
             <Magnetic><a className="btn line" href={href('contact')}>Contact us</a></Magnetic>

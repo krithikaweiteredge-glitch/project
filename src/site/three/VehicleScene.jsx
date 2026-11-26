@@ -46,7 +46,7 @@ function finish(hint, base, opacity, zone, map) {
  */
 const STRUCT_SPOT = {
   helicopter: [[-1.85, 0.55, 0], 0.42],                // tail-boom-to-cabin joint
-  fighter_single_engine: [[-0.6, -0.05, 0.5], 0.4],    // wing-root attachment
+  fighter_single_engine: [[1.2, 0.85, 0.6], 0.4],      // wing-root attachment (Tejas)
   fighter_twin_engine: [[-0.8, -0.05, 1.05], 0.45],    // wing-root attachment
   male_uav: [[1.22, 0.37, 0.61], 0.3],                 // wing root (Rustom-2)
   airliner_narrowbody: [[0.34, -0.84, 0.67], 0.55],    // wing-to-body joint (A321)
@@ -303,8 +303,9 @@ function Detailed({ prep, parts, eRef, showRef, look, hide = null, onSelect, onH
       // only a volume inside the shell (avionics, fuel, a battery bay...) is kept inside that volume
       const sz = pp.size;
       let fit = Math.max(sz.x, sz.y, sz.z) / 2.2;
-      // an actuator drives its surface from one end: sized like an actuator, not stretched to a long aileron
-      if (id.includes('actuator')) fit = Math.min(fit, (prep.radius * 0.18) / 2.2);
+      // an actuator is sized like an actuator, the same on every surface of an aircraft: not stretched to a long
+      // aileron, and not shrunk where the simplified model leaves only a sliver of the surface
+      if (id.includes('actuator')) fit = (prep.radius * 0.14) / 2.2;
       const k = Math.max(on, 0.001);
       const engine = id === 'engine' || id === 'apu' || id.startsWith('engine_');
       if (pp.zone || engine) {
@@ -411,7 +412,8 @@ function Callouts({ prep, parts, eRef, showRef, look, onSelect, avoid }) {
 /**
  * The 3D twin.
  *  inspect  - the interactive inspector: see-through airframe, components highlighted, dots, click to select
- *  explode  - ref: true to take the aircraft apart (inspector toggle); outside the inspector `progress` drives it
+ *  explode  - optional ref: true to take the aircraft apart in the inspector (the site's inspector keeps it
+ *             assembled, every part in its real place); outside the inspector `progress` drives it
  *  dots     - show status dots once the parts are coloured (home page)
  *  cmd      - ref: { zoom: factor, reset: bool } from the zoom buttons
  *  quality  - 'lite' for the home page (fast), 'full' for the inspector
@@ -423,6 +425,8 @@ export default function VehicleScene({ model, parts, progress, inspect, sel, hov
     if (spot && p.parts.airframe) { const v = new THREE.Vector3(...spot[0]); p.parts.airframe = { home: v, centre: v.clone(), radius: spot[1] }; }
     return p;
   }, [model, look]);
+  // development only: the prepared parts, for checking where each one sits (window.__ivhmTwin in the console)
+  if (import.meta.env.DEV && inspect) window.__ivhmTwin = { look, prep };
   const light = useTheme() === 'light';
   const BG = light ? '#e9e9ed' : '#0e0e12';
   const lite = quality === 'lite';

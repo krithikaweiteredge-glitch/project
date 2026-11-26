@@ -52,7 +52,7 @@ export default function Category({ id }) {
                   <div><span>Data</span><b>{live.length ? 'Live' : 'Demo'}</b></div>
                 </div>
                 <div className="hero-cta" style={{ animation: 'none', marginTop: 0 }}>
-                  <Magnetic><a className="btn solid" href={href('vehicle', l)}>Take it apart <span className="ar">→</span></a></Magnetic>
+                  <Magnetic><a className="btn solid" href={href('vehicle', l)}>Inspect the twin <span className="ar">→</span></a></Magnetic>
                 </div>
                 <p className="mono muted" style={{ fontSize: 11, marginTop: 18 }}>{v.examples}</p>
               </Reveal>
